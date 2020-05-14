@@ -1,0 +1,39 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+
+# install, but don't load
+install.packages("tidygraph")
+
+library(pacman)
+p_load(tidyverse, ggraph, tidytext, readxl, igraph)
+
+# import group membership
+getwd()
+setwd("/Users/FlowersnIce-cream/Downloads/cogsci_otree_net")
+nodes <- read_csv("nodes.csv")
+edges <- read_csv("edgelist.csv")
+nodes$X1 <- NULL
+edges$X1 <- NULL
+```
+
+```{r}
+p_load(ggraph,igraph)
+net <- graph_from_data_frame(d=edges, vertices = nodes)
+net
+#
+net <- simplify(net, remove.multiple = F, remove.loops = T)
+#
+plot(net, edge.arrow.size=.4,vertex.label=NA, edge.curved=.3)
+
+```

@@ -1,0 +1,151 @@
+---
+title: 'Portfolio 3: The Reading Experiment'
+author: "your name"
+date: "10/31/2017"
+output: word_document
+---
+
+## Portfolio 3: The Reading Experiment 
+
+In this portfolio assignment, you will be conducting analyses of data from your reading experiment. The portfolio has two overall sections asking different questions: 1) A correlational section investigating what aspects of words predict reading time, and 2) an experimental section asking about the way that contextual expectancies affect our reading time by contrasting two conditions.
+
+For each analyses, remember to make qualified choices of statistical test based on assumption testing.
+Futhermore, for each analysis, provide a written report following APA conventions and a plot that illustrates the result  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# First we start out by loeading the packages we'll most likely use:
+library(tidyverse) ; library(stringr) ; library(stringi) ; library(pastecs)
+# Then we set the Working Directory
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Portfolio 3")
+
+#Now we'llimport all of our colelcted datafiles from the reading experiment
+filenames = list.files(pattern = "*.csv") #list of filenames from WD
+data = data.frame() #create empty df
+
+#LOOP:
+for (i in filenames){ #loop over list of files
+  file = read.csv(i) #import the current file
+  data = rbind(data, file[,]) #we now add every files data to our dataframe 'data'
+}
+
+
+```
+
+Normal distribution of Reaction.Times and following transformations
+
+```{r}
+# We start out making a qqplot over reactiontime
+qqnorm(data$Reaction.Time)
+# that doesn't look normally distributed
+
+#We'll try to get a better look by making a histogram over reactiontime 
+ggplot(data, aes(x = Reaction.Time))+
+  geom_histogram(aes(y = ..density..))+ #add the histogram layer with density on the y-axis
+  stat_function(fun = dnorm,
+                args = list(mean = mean(data$Reaction.Time), 
+                sd = sd(data$Reaction.Time)), color = "orange")+
+  labs(title = "Histogram with reaction time and condition")
+#This neither shows us something "really" normally distributed
+
+# We try to do 3 different transformations on our reading data to get it normally distributed
+# We start out with a logarithmic transformation
+data$log <- log(data$Reaction.Time)
+qqnorm(log(data$Reaction.Time)) # The qqplot seems fairly normal - We'll go ahead with these transformed data, unless the squareroot and Reciprocal transformations do better
+data$sqrt <- sqrt(data$Reaction.Time)
+qqnorm(sqrt(data$Reaction.Time)) 
+data$RT <- 1/(data$Reaction.Time)
+qqnorm(1/(data$Reaction.Time)) # They don't give better qqplots than our logarithmic transformations, so well go with the log data
+
+# To be sure that it's really normally distributed, we'll return normal distribution statistics on our Log transformation:
+round(stat.desc(data$log, basic = FALSE, norm = TRUE),3)
+#Our skew.2SE and kurt.2SE is 7.207 and 14.146 seperately, which is higher than 1, and this means that the skewness and kurtosis is significantly different from zero
+# So.. Good thing we checked! Now we found out that the logarithmic data still wasn't normally distributed, so we'll use spearmans more robust test instead
+```
+ 
+ # 1) What properties of words predict word-by-word reading time?
+
+Conduct minimum three correlational analyses where you investigate the relation between reading time and relevant predictors such as e.g. word length, frequencies, etc. 
+ 
+```{r}
+# Correlational study 1 - Reaction Time and Word Length
+
+# First we'll make a new column in our data with the mutate function, and use the stri_length function to count the letters in all the words
+#But we do that, we need to remove all the special caracters
+data$clean_words <- str_replace_all(data$Word, pattern = "[[:punct:]]", replacement = "")
+data <- mutate(data, Word_lenght = stri_length(data$clean_words))
+# Now we'll make a correlation test to see if the reactiontime and the word length are correlated, and we'll use spearmans method since we didn't get any normal distributions with our earlier transformations.
+cor.test(data$Word_lenght, data$Reaction.Time, method = "spearman")
+
+
+```
+
+Report goes here: 
+We have a significant P-value, but our R^2 is very low. So that means that the word length is decribing very little of the variation of our reactiontimes.
+
+
+```{r}
+# code for your correlational study 2 
+```
+
+Report goes here:
+
+```{r}
+# code for your correlational study 3 
+```
+
+Report goes here:
+
+# 2) How does contextual expectations affect reading time?
+
+Conduct a contrastive analysis of the two conditions in your reading experiment. Single out reading time of the words that differ between the two versions of your text/story and compare the means using a t-test. 
+
+```{r}
+#Now we'll import all of our colelcted datafiles from the reading experimen
+#First we look trough our Working Directory and make list of filenames
+filenames = list.files(pattern = "*.csv") 
+second_data = data.frame() #create a new empty df for this second part of th portfolio
+#LOOP:
+for (i in filenames) {	#loop over list of files
+  file = read.csv(i)	#import the current file
+  second_data = rbind(second_data, file[162,]) #add the 162th line of the current file to the df, is to choose all the columns
+  #we want to attach some data to our empty DF - rbind takes a row and appends it at the buttom of our DF
+}
+
+# We start out by doing som qqplots on the Reaction-Time data - to see if there're any skews
+qqnorm(data1$Reaction.Time)
+data$log <- log(data$Reaction.Time)
+qqnorm(log(data1$Reaction.Time)) #alrigthy
+data$sqrt <- sqrt(data$Reaction.Time)
+qqnorm(sqrt(data$Reaction.Time)) # Not good
+data$RT <- 1/(data$Reaction.Time)
+qqnorm(1/(data$Reaction.Time)) # alrigthy
+
+#Now for each condition
+second_data1 <- filter(second_data, Condition == 1)
+qqnorm(second_data1$Reaction.Time)
+second_data1$log <- log(second_data1$Reaction.Time)
+qqnorm(log(second_data1$Reaction.Time)) #meh
+second_data1$sqrt <- sqrt(second_data1$Reaction.Time)
+qqnorm(sqrt(second_data1$Reaction.Time)) # Not good
+second_data1$RT <- 1/(second_data1$Reaction.Time)
+qqnorm(1/(second_data1$Reaction.Time)) # alrigthy
+
+second_data2 <- filter(second_data, Condition == 2)
+qqnorm(second_data2$Reaction.Time)
+second_data2$log <- log(second_data2$Reaction.Time)
+qqnorm(log(second_data2$Reaction.Time)) #not good
+second_data2$sqrt <- sqrt(second_data2$Reaction.Time)
+qqnorm(sqrt(second_data2$Reaction.Time)) # Not good
+second_data2$RT <- 1/(second_data2$Reaction.Time)
+qqnorm(1/(second_data2$Reaction.Time)) # not good
+
+#Now let's do some statistics on our data to
+round(stat.desc(data$Reaction.Time, norm = TRUE),4)
+#Now let's do a t-test
+t.test(data$sqrt ~ data$Condition, data=data, paired = F)
+
+
+```
+
+Report goes here:

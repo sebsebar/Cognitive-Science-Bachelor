@@ -1,0 +1,201 @@
+---
+title: 'Portfolio 3: The Reading Experiment'
+author: "Maria Mareckova"
+date: "10/31/2017"
+output: word_document
+---
+
+## Portfolio 3: The Reading Experiment 
+
+In this portfolio assignment, you will be conducting analyses of data from your reading experiment. The portfolio has two overall sections asking different questions: 1) A correlational section investigating what aspects of words predict reading time, and 2) an experimental section asking about the way that contextual expectancies affect our reading time by contrasting two conditions.
+
+For each analyses, remember to make qualified choices of statistical test based on assumption testing.
+Futhermore, for each analysis, provide a written report following APA conventions and a plot that illustrates the result  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# import your libraries and data in this code block
+
+library(stringi)
+library(stringr)
+library(tidyverse)
+library(pastecs)
+install.packages("WRS2")
+library(WRS2)
+
+data_person <- read.csv("logfile_Thomas Hagen Hansen2.csv", sep = ",")
+
+
+
+```
+
+```{r}
+ggplot(data_person, aes(x = Reaction.Time))+
+  geom_histogram(aes(y = ..density..),binwidth = 0.1)+
+  stat_function(fun = dnorm, args = list(mean = mean(data_person$Reaction.Time), sd = sd(data_person$Reaction.Time)))
+
+qqnorm(data_person$Reaction.Time)
+
+round(stat.desc(data_person$Reaction.Time, basic = FALSE, norm = TRUE),3)
+
+#Because our data are not normally distributed we have to make transformations
+
+data_person<- mutate (data_person, logRT = log(Reaction.Time), sqrtRT = sqrt(Reaction.Time), RT = 1/(Reaction.Time))
+
+qqnorm(data_person$logRT)
+qqnorm(data_person$sqrtRT, main = "Q-Q plot of logarithmic transformation")
+qqnorm(data_person$RT)
+
+ggplot(data_person, aes(x = sqrtRT))+
+  geom_histogram(aes(y = ..density..), binwidth = 0.1)+
+  stat_function(fun = dnorm, args = list(mean = mean(data_person$sqrtRT), sd = sd(data_person$sqrtRT)))
+
+round(stat.desc(data_person$logRT, basic = FALSE, norm = TRUE),3)
+round(stat.desc(data_person$sqrtRT, basic = FALSE, norm = TRUE),3)
+round(stat.desc(data_person$RT, basic = FALSE, norm = TRUE),3)
+
+#our data are not normally distributed after transformations. Therefore we have to use non-parametric test.
+
+```
+
+# 1) What properties of words predict word-by-word reading time?
+
+Conduct minimum three correlational analyses where you investigate the relation between reading time and relevant predictors such as e.g. word length, frequencies, etc. 
+ 
+```{r}
+# code for your correlational study 1 
+
+data_person$Clean_words <- str_replace_all(data_person$Word, pattern = "[[:punct:]]", replacement = "") #remove special characters
+data_person$Clean_words <- toupper(data_person$Clean_words) #make words upper case 
+data_person<- mutate(data_person, Word_length = stri_length(data_person$Clean_words)) #add new column with the length of words into the list 
+
+cor.test(data_person$Word_length , data_person$Reaction.Time, method = "spearman")
+rho = 0.3337761
+rho^2
+#as can be seen in the correlation test, p-value is below .05, so the relation between variables is significant. Coeficient of determination is .20, which means we see a small effect, and rho^2
+
+ggplot(data_person, aes(x = Word_length, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+
+#according to the graph, we can see that with increasing word length, reaction time goes up as well. 
+
+
+```
+
+Report goes here: Word length	was	found	to be positively correlated	with	
+the	reaction time of the participant Thomas,	r(182)=.34,	p <	.05
+
+```{r}
+# code for your correlational study 2 
+
+word_list <- data_person$Clean_words #turn column into a list
+word_list <- unique(word_list) #removes duplicates from text 
+word_string <-  paste( unlist(word_list), collapse=" ") #put a space in between all elements 
+word_string
+
+freq <- read.csv("frequency1.csv", header = F, sep = ";",na.strings = "-")
+#import the excel file into R
+
+colnames(freq) = c("Clean_words", "frequency") #rename the columns
+merged_df <-merge(data_person, freq, by = "Clean_words") #merge new predictor with the old dataset
+
+cor.test(x= merged_df$Reaction.Time, y = merged_df$freq, method = "spearman")
+#it can be seen that p-value is below .05 which means that the relation is significant. Rho coeficient is negative (-0.16) which indicates that with higher frequency of words reaction time gets smaller. 
+
+ggplot(merged_df, aes(x = frequency, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+
+#graph confirms correlation analyses that reaction time gets smaller with higher frequency
+
+``` 
+
+Report goes here: Word frequency	was	found	to	be correlated	with	
+the	reaction time of participant,	r(181)= .26,	p <	.05.
+
+```{r}
+# code for your correlational study 3 
+
+imagability <- read.csv("imagability1.csv", header = F, sep = ";",na.strings = "-")
+colnames(imagability) = c("Clean_words", "imagability") #rename the columns
+merged_data <-merge(data_person, imagability, by = "Clean_words") #merge new predictor with the old dataset
+
+cor.test(x= merged_data$Reaction.Time, y = merged_data$imagability, method = "spearman")
+#we can see that p-value is not significant and therefore we cannot observe relation between imagability and reaction time. Also, rho coeficient is too small to observe correlation. 
+
+ggplot(merged_data, aes(x = imagability, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+
+
+```
+
+Report goes here: Word imagability	was	found	not to	be correlated	with	
+the	reaction time of participant,	r(181)= .08,	p >	.05.
+
+# 2) How does contextual expectations affect reading time?
+
+Conduct a contrastive analysis of the two conditions in your reading experiment. Single out reading time of the words that differ between the two versions of your text/story and compare the means using a t-test. 
+
+```{r}
+# code for your t-test study  
+
+filenames <- list.files(pattern = "*.csv") #create a new variable in which we put names of files and let it search in our working directory
+
+data = data.frame()
+
+for(i in filenames){
+  file = read.csv(i)
+  data = rbind(data, file[162,])
+} #we want to loop through filenames, we put our data in variable called file.R takes row number 162 and takes all columns ,rbind attaches data to dataframe, each time R takes one row and attaches it to the dataframe
+
+
+cond1 <- filter(data, Condition == 1) #create new dataframe only with condition 1
+cond2 <- filter(data, Condition == 2)#create new dataframe only with condition 2
+
+#ww want to test if our data are normally distributed 
+ggplot(data, aes(x = Reaction.Time))+
+  geom_histogram(aes(y = ..density..), binwidth = 0.2)+
+   stat_function(fun = dnorm, args = list(mean = mean(data$Reaction.Time), sd = sd(data$Reaction.Time)))+
+   facet_wrap(~ Condition)
+#according to the histogram it seems that we are approching normal distribution in condition 1 but condition 2 seems to be more positively skewed
+  
+qqnorm(cond1$Reaction.Time) #draw qqplot 
+qqnorm(cond2$Reaction.Time)
+
+round(stat.desc(cond1$Reaction.Time,basic = FALSE, norm = TRUE),3) 
+#normtest.p is not significant (> .05), which means that the scores are not significantly different from normal distribution, also skew2SE and kurt2SE are below 1
+round(stat.desc(cond2$Reaction.Time,basic = FALSE, norm = TRUE),3)
+#normtest.p is significant (<.05), which means that the scores are significantly different from normal distribution. We can try and use transformations. 
+
+cond2 <-  mutate(cond2, logRT = log(Reaction.Time), sqrtRT = sqrt(Reaction.Time), RT = 1/(Reaction.Time))
+
+
+qqnorm(cond2$logRT)
+qqnorm(cond2$sqrtRT)
+qqnorm(cond2$RT)
+
+round(stat.desc(cond2$logRT,basic = FALSE, norm = TRUE),3)
+round(stat.desc(cond2$sqrtRT,basic = FALSE, norm = TRUE),3)
+round(stat.desc(cond2$RT,basic = FALSE, norm = TRUE),3)
+
+#even after transformations our data in condition 2 are not normally distributed.It is probably caused by too few data points. 
+
+yuen( formula = Reaction.Time ~ Condition , data = data)
+
+#how to interpret 
+
+#p-value is below .05, so there is not significant difference between means of two conditions. Moreover confidence intervals cross zero so we cannot be sure about difference. 
+
+ggplot(data, aes( x = Condition ,y = Reaction.Time ))+
+   geom_bar(stat = "summary", fun.y= mean)+
+  geom_errorbar(stat = "summary", fun.data = mean_se, width = 0.2)
+#in the bar chart, we can see that error bars overlap 
+library(lme4)
+m = lmer(Reaction.Time ~ Condition + (1|))
+
+```
+
+Report goes here: Using an independent t-test, we found that the use of an unexpected word did not significantly increased reading time for that word, t(9.82) = 0.15 , p > .05. 
+

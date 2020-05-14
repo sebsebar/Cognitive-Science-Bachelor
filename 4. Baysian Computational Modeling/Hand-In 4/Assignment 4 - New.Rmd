@@ -1,0 +1,366 @@
+---
+title: "models"
+author: "Sebastian Scott Engen"
+date: "30 apr 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library('pacman')
+p_load(tidyverse, readxl, brms, metafor, brmstools, ggunchained, cowplot)
+devtools::install_github("mvuorre/brmstools")
+
+setwd('/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/4')
+pitch <- read_excel("Assignment4PitchDatav2.xlsx")
+meta <- read_excel("Assignment4MetaData.xlsx")
+```
+
+# TASK 1
+Plot to get an overview (not part of task)
+
+```{r meta situation}
+meta %>%
+  filter(!is.na(MeanES)) %>% #no NA. 
+  ggplot(aes(x = MeanES, y = StudyRef)) + 
+  geom_segment(aes(x = MeanES-SdES, xend = MeanES+SdES, y=StudyRef, yend=StudyRef)) +
+  geom_point() +
+  geom_vline(xintercept = 0, color = "grey42") +
+  theme_janco_point()
+```
+
+TASK 1 (continued)
+preparing meta analysis.
+refer for formula's on transformation:
+https://onlinelibrary-wiley-com.ez.statsbiblioteket.dk:12048/doi/epdf/10.1002/sim.1525
+
+```{r}
+
+#subset with clean data (I.e., only rows with the columns we need)
+meta_clean <- meta %>%
+  subset(MeanES != "NA")
+
+#calculating variation (necessary to obtain log of standard deviation).
+meta_clean <- meta_clean %>%
+  mutate(varSDSZ = log(1+(PITCH_F0SD_SZ_SD^2/PITCH_F0SD_SZ_M^2)),
+         varSDHC = log(1+(PITCH_F0SD_HC_SD^2/PITCH_F0SD_HC_M^2)))
+
+#calculation for log of standard deviation.
+meta_clean <- meta_clean %>%
+  mutate(logSDSZ = sqrt(varSDSZ),
+         logSDHC = sqrt(varSDHC))
+
+#calculations for log of mean. 
+meta_clean <- meta_clean %>%
+  mutate(logmeanSZ = log(PITCH_F0SD_SZ_M) - 0.5 * varSDSZ,
+         logmeanHC = log(PITCH_F0SD_HC_M) - 0.5 * varSDHC)
+
+#effect size pitch SD (this z-scales I think)
+meta_ready=escalc('SMD', n1i=SAMPLE_SIZE_SZ, n2i=SAMPLE_SIZE_CT, m1i=logmeanSZ,
+m2i=logmeanHC, sd1i=logSDSZ, sd2i=logSDHC,
+data = meta_clean)
+
+```
+
+TASK 1 (continued)
+meta analysis model.
+refer for the approach taken: 
+https://vuorre.netlify.com/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/ 
+
+```{r}
+
+# meta-analysis vuorre inspired. 
+brm_matti <- brm(
+  yi | se(vi) ~ 1 + (1 | StudyRef), #works, we know the variance. 
+  prior = set_prior("uniform(0, 10)", class = "sd"), 
+  data = meta_ready, 
+  iter = 10000,
+  cores = 4
+) 
+
+# model estimates for the effect size 
+brm_matti #looks fine (I.e., Rhat = 1 & many effective samples)
+
+```
+
+TASK 1 (continued)
+plots & sanity check
+
+```{r}
+#pairs & plot (sanity/convergence check)
+pairs(brm_matti) #looks fine
+plot(brm_matti) #looks fine
+pp_check(brm_matti) #looks fine
+
+#forest plot 
+brmstools::forest(brm_matti,
+       show_data = TRUE,
+       av_name = "Effect size")
+
+```
+
+TASK 2 
+Preparing data
+
+comments: 
+We log-transform because we have normality in log-space (I.e., a multiplicative process becomes normal in log-space). However, we also have to z-scale for it to match the meta-analysis. The log-transformation has to be done first, because it is impossible to log-transform negative values (which will exist after the z-scaling). 
+
+comments: 
+write something about random effects. 
+
+```{r}
+#putting on log scale, z-scaling & diagnosis as factor 
+pitch3 <- pitch %>%
+  mutate(pitchSDLOG = log(PitchSD),
+         pitchSDLOGz = scale(pitchSDLOG),
+         diagnosis = as.factor(diagnosis))
+```
+
+TASK 3 
+3.1 how is the outcome distributed?
+log-normally (exponential/cauchy perhaps).
+At least it is not normally distributed, which is why we had to go to great lengths to transform the old data (& why we log-transformed the new data). We need to write this up. 
+
+3.2 how are the parameters of likelihood distribution distributed?
+We need to write this up as well. 
+
+3.3 use a sceptical prior for the effect of diagnosis. 
+We need to justify our priors.
+Right now I have just used some that work.
+
+building regression model: 
+
+```{r setup, include=FALSE}
+
+#the regression
+mod_f <- bf("pitchSDLOGz ~ diagnosis + (1|studynr) + (1 | ID) + (1|trial)")
+
+#running the model with regularizing priors 
+brm_mod <- brm(
+  mod_f, 
+  prior = c(
+    prior(normal(0, 0.2), class = "Intercept"),
+    prior(normal(0, 0.2), class = "sd"), #Rhat = 1.01, could be more regularizing.
+    prior(normal(0, 0.3), class = "b"),
+    prior(normal(0, 0.3), class = "sigma")),
+  data = pitch3, 
+  cores = 4, iter = 4000, warmup = 2000,
+  sample_prior = TRUE #added for later use. 
+)
+
+# model estimates 
+brm_mod #could be improved (when is it hacking?..) 
+
+```
+
+TASK 3 (continued)
+3.4 plots & model evaluation
+
+```{r}
+#sanity check
+plot(brm_mod) #looks good. 
+pairs(brm_mod) #looks good. 
+
+#posterior predictive checks (violin is funky)
+pp_check(brm_mod, nsamples = 100) #looks ok. 
+pp_check(brm_mod, nsamples = 100, type = "violin_grouped", group = "diagnosis")
+
+#getting an idea of marginal effects
+brms::marginal_effects(brm_mod) #big effect (presumably, the scale is fucked..)
+```
+
+TASK 3 (continued)
+more plots.
+THIS IS THE ONLY THING STILL HOLDING US BACK!
+Ideas as to why this is not working (I.e., looks weird):
+--> how are we sampling? (I.e., something about random effects, pooling?)
+--> could we reparameterize our model so that we actually predict both groups directly?
+
+can we plot with posterior_samples(brm_mod) or something else instead?
+The main issue seems to be tying the predictions to either group. 
+We need to know whether a sample/prediction is for one group or the other. 
+I still think that when we sample, it is not really treating this as two different groups but combining the parameters in a wrong way. 
+
+```{r}
+
+#using fitted() to extract samples/predict
+mod_line <- fitted(brm_mod) %>% #population parameters (fitted).
+  cbind.data.frame(pitch3)
+
+#predictions plot split violin
+p1 <- mod_line %>%
+  ggplot(aes(x = diagnosis, y = Estimate,
+             color = factor(diagnosis),
+             fill = factor(diagnosis))) +
+  geom_split_violin() +
+  geom_jitter(alpha = 0.4, width = 0.4)
+
+#plot of data split violin 
+p2 <- pitch3 %>%
+  ggplot(aes(x = diagnosis, y = pitchSDLOGz,
+             color = factor(diagnosis),
+             fill = factor(diagnosis)))+
+  geom_split_violin() +
+  geom_jitter(alpha = 0.4, width = 0.4) +
+  ylim(-1, 2) #NB
+
+#studies plot data
+p3 <- pitch3 %>%
+  ggplot(aes(x = diagnosis, y = pitchSDLOGz,
+             color = factor(diagnosis),
+             fill = factor(diagnosis)))+
+  geom_split_violin() +
+  geom_jitter(alpha = 0.4, width = 0.4) +
+  facet_wrap(~studynr)
+
+#studies plot prediction
+p4 <- mod_line %>%
+  ggplot(aes(x = diagnosis, y = Estimate,
+             color = factor(diagnosis),
+             fill = factor(diagnosis)))+
+  geom_split_violin() +
+  geom_jitter(alpha = 0.4, width = 0.4) +
+  facet_wrap(~studynr)
+
+# plot_grids 
+plot_grid(p1, p2) #NB see limits to scales (the real data goes way further)
+plot_grid(p3, p4) 
+```
+
+TASK 4 (updating priors)
+4.1 re-running the model with meta-analytic priors
+
+```{r}
+#remembering the estimates that go into the prior
+brm_matti
+
+#running the model 
+brm_meta <- brm(
+  mod_f, 
+  prior = c(
+    prior(normal(0, 0.2), class = "Intercept"),
+    prior(normal(0, 0.2), class = "sd"),
+    prior(normal(-0.57, 0.24), class = "b"), #prior from meta. 
+    prior(normal(0, 0.3), class = "sigma")),
+  data = pitch3, 
+  cores = 4, iter = 4000, warmup = 2000,
+  sample_prior = TRUE
+)
+
+#estimates 
+brm_meta
+
+```
+
+TASK 4 (continued)
+4.2 Evaluate model quality
+
+```{r}
+
+#sanity check (just plot() since pairs() is too messy)
+plot(brm_meta) #looks fine
+
+#pp_check & marginal effects
+pp_check(brm_meta, nsamples = 100) #looks fine. 
+brms::marginal_effects(brm_mod) #big effect (again, presumably)
+
+```
+
+TASK 5 
+5.1 plot priors & posteriors of the diagnosis effect for each model.
+As will be clear from the plot (bottom of the chunk) the priors are quite different (especially the means of the priors). However, the priors are not strong enough to "contain" the data - and the posteriors end up virtually identical. 
+
+```{r}
+
+#sampling prior & posterior from brm_mod
+p_samp_mod <- prior_samples(brm_mod) 
+po_samp_mod <- posterior_samples(brm_mod)
+
+#plot 
+p1 <- ggplot() +
+  geom_density(data = p_samp_mod, aes(x = b), fill = "red", alpha = 0.3)+
+  geom_density(data = po_samp_mod, aes(x = b_diagnosis1), fill = "blue", alpha = 0.3)+
+  xlab("effect of diagnosis in log & z-scale space regularizing prior") + 
+  labs(title = "difference between prior and posterior", 
+       subtitle = "regularizing prior",
+       caption = "red = prior\n blue = posterior") +
+  theme_janco_point() 
+
+#sampling prior & posterior from brm_meta
+p_samp_met <- prior_samples(brm_meta)
+po_samp_met <- posterior_samples(brm_meta)
+
+#plot 
+p2 <- ggplot() +
+  geom_density(data = p_samp_met, aes(x = b), fill = "red", alpha = 0.3)+
+  geom_density(data = po_samp_met, aes(x = b_diagnosis1), fill = "blue", alpha = 0.3)+
+  xlab("effect of diagnosis in log & z-scale space") + 
+  labs(title = "difference between prior and posterior",
+       subtitle = "meta-analytic prior", 
+       caption = "red = prior\n blue = posterior") +
+  theme_janco_point() 
+
+#plot grid 
+plot_grid(p1, p2)
+
+
+
+
+#Skeptical model
+plotdata = data.frame(diagnosis = c(0, 1))
+plotdata = cbind(plotdata, predict(brm_mod, newdata = plotdata, re_formula = NA))
+
+m1 <- ggplot(pitch3, aes(x=diagnosis, y=pitchSDLOGz))+
+  geom_jitter(height = 0, aes(color=as.factor(diagnosis)),alpha = 0.4, width = 0.4)+geom_split_violin() + geom_line(aes(diagnosis+1, Estimate), data = plotdata)+ geom_pointrange(aes(diagnosis+1, Estimate, ymin = Q2.5, ymax = Q97.5), data = plotdata)+
+  ggtitle("Jitterplot with conservative prior model")+
+  labs(x="Diagnosis", y="Standard Deviation of Pitch", color="Diagnosis")
+
+#Meta model
+plotdataMeta = data.frame(diagnosis = c(0, 1))
+plotdataMeta = cbind(plotdataMeta, predict(brm_meta, newdata = plotdataMeta, re_formula = NA))
+
+m2 <- ggplot(pitch3, aes(x=diagnosis, y=pitchSDLOGz))+
+  geom_jitter(height = 0, aes(color=as.factor(diagnosis)),alpha = 0.4, width = 0.4)+geom_split_violin() + geom_line(aes(diagnosis+1, Estimate), data = plotdataMeta)+ geom_pointrange(aes(diagnosis+1, Estimate, ymin = Q2.5, ymax = Q97.5), data = plotdataMeta)+
+  ggtitle("Jitterplot with meta prior model")+
+  labs(x="Diagnosis", y="Standard Deviation of Pitch", color="Diagnosis")
+#plot grid 
+plot_grid(m1, m2)
+```
+
+TASK 5 (continued)
+5.2 compare posteriors between the models.
+The posteriors are virtually identical. 
+
+```{r}
+
+#plot comparing the posteriors 
+p3 <- ggplot() +
+  geom_density(data = po_samp_mod, aes(x = b_diagnosis1), 
+               fill = "red", alpha = 0.3)+
+  geom_density(data = po_samp_met, aes(x = b_diagnosis1), 
+               fill = "blue", alpha = 0.3) +
+  xlab("effect of diagnosis in log & z-scale space") + 
+  labs(title = "difference between posteriors",
+       subtitle = "regularizing & meta-analytic priors", 
+       caption = "red = regularizing prior\n blue = meta-analytic prior") +
+  geom_vline(data = po_samp_met, aes(xintercept = mean(b_diagnosis1)), color = "black") +
+  geom_vline(data = po_samp_mod, aes(xintercept = mean(b_diagnosis1)), color = "black") +
+  theme_janco_point() 
+
+p3
+
+```
+
+TASK 5 (continued)
+5.3 compare relative distance from truth (WAIC)
+
+```{r}
+#extracting criterion 
+meta_waic <- add_criterion(brm_meta, "waic")
+main_waic <- add_criterion(brm_mod, "waic")
+
+#comparing WAIC
+comp_score <- loo_compare(meta_waic, main_waic, criterion = "waic")
+print(comp_score, simplify = F)
+```

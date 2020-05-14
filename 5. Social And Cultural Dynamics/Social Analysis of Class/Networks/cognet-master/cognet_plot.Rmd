@@ -1,0 +1,206 @@
+---
+title: "cognet_plot"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# run everything in cognet_prep
+```
+
+# EVERYTHING
+## Basic plot (+ names & weight)
+```{r}
+net_1 %>% 
+  tidygraph::activate(edges)
+
+ggraph(net_1, layout = 'nicely') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label), repel = F) +
+  theme_graph()
+```
+
+## network measures
+```{r}
+# distance
+tibble(
+  "measure" = c("mean distance", "diameter", "mean degree"),
+  "value" = c(mean(distances(net_1)), diameter(net_1), mean(degree(net_1)))
+       ) %>%
+  knitr::kable(digits = 2)
+
+rethinking::dens(degree(net_1))
+
+
+# clustering & cliques
+transitivity(net_1, type = "average")
+min_cut(net_1, value.only = FALSE)
+
+clique_num(net_1)
+largest.cliques(net_1)
+```
+
+
+# ALL STUDY GROUPS
+## Basic plot (+ names & weight)
+```{r}
+net_3 %>% 
+  tidygraph::activate(edges)
+
+ggraph(net_3, layout = 'graphopt') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label), repel = F) +
+  labs(edge_width = "n connections") +
+  theme_graph()
+
+ggraph(net_3, layout = 'linear', circular = TRUE) + 
+  geom_edge_arc(alpha = 0.5) + 
+  coord_fixed() +
+  theme_graph()
+```
+
+## network measures
+```{r}
+# distance
+tibble(
+  "measure" = c("mean distance", "diameter", "mean degree"),
+  "value" = c(mean(distances(net_3)), diameter(net_3), mean(degree(net_3)))
+       ) %>%
+  knitr::kable(digits = 2)
+
+rethinking::dens(degree(net_3))
+
+
+# clustering & cliques
+transitivity(net_3, type = "average")
+min_cut(net_3, value.only = FALSE)
+
+clique_num(net_3)
+largest.cliques(net_3)
+```
+
+```{r}
+nodes_clique <- nodes %>%
+  mutate(l_clique = ifelse(id %in% as.character(largest.cliques(net_3)[[1]]),
+                           1, 0))
+
+net_3_clique <- tidygraph::tbl_graph(nodes = nodes_clique, 
+                                     edges = ed_no_study, directed = FALSE)
+
+net_3_clique %>% 
+  tidygraph::activate(edges)
+
+ggraph(net_3_clique, layout = 'graphopt') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label, color = factor(l_clique)), repel = F) +
+  labs(edge_width = "n connections", color = "member of largest clique") +
+  theme_graph()
+
+```
+
+```{r}
+ggraph(net_3, layout = 'graphopt') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label, size = eigen_centrality(net_3)$vector), repel = F) +
+  labs(edge_width = "n connections", size = "eigen centrality") +
+  theme_graph()
+```
+
+
+# STUDY GROUPS (by semester)
+## Plot
+```{r}
+net_2_early %>% 
+  tidygraph::activate(edges)
+
+ggraph(net_2_early, layout = 'graphopt') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7,
+    show.legend = FALSE) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label), repel = F) +
+  guides(width = NA) +
+  theme_graph()
+```
+
+```{r}
+# distance
+tibble(
+  "measure" = c("mean distance", "diameter", "mean degree"),
+  "value" = c(mean(distances(net_2_early)), 
+              diameter(net_2_early), mean(degree(net_2_early)))
+       ) %>%
+  knitr::kable(digits = 2)
+
+rethinking::dens(degree(net_2_early))
+
+
+# clustering & cliques
+transitivity(net_2_early, type = "average")
+min_cut(net_2_early, value.only = FALSE)
+
+clique_num(net_2_early)
+largest.cliques(net_2_early)
+```
+
+
+```{r}
+net_2_late %>% 
+  tidygraph::activate(edges)
+
+ggraph(net_2_late, layout = 'nicely') + 
+  geom_edge_link(aes(
+    start_cap = circle(3, 'mm'),
+    end_cap = circle(3, 'mm'),
+    width = weight),
+    alpha = 0.7,
+    show.legend = FALSE) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_label(aes(label = label), repel = F) +
+  theme_graph()
+```
+
+```{r}
+# distance
+tibble(
+  "measure" = c("mean distance", "diameter", "mean degree"),
+  "value" = c(mean(distances(net_2_late)), diameter(net_2_late), mean(degree(net_2_late)))
+       ) %>%
+  knitr::kable(digits = 2)
+
+rethinking::dens(degree(net_2_late))
+
+
+# clustering & cliques
+transitivity(net_2_late, type = "average")
+min_cut(net_2_late, value.only = FALSE)
+
+clique_num(net_2_late)
+largest.cliques(net_2_late)
+```
+
+

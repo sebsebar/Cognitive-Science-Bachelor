@@ -1,0 +1,43 @@
+---
+title: "The Sound Symbolism Experiment"
+author: "Your Name"
+date: "11/26/2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+Replace this text by a very brief summary of the study and results
+
+## Introduction 
+Replace this text with a very brief motivation for the study and statement of hypotheses/predictions
+
+## Materials and Methods
+Replace this text with a brief description of the experimental setup with particular focus on the the dependent and independent variables
+
+# Analysis
+Write here a full specification of the statistical model here: what are the variables in the model? Fixed and random effects?
+
+```{r, echo=FALSE}
+# in this code block you include ...
+# the call of libraries
+# set working directory
+# import of data set
+# any other preprocessing if needed
+# notice that echo = FALSE which means that this part of the analysis will not be visible in the report
+
+```
+
+```{r}
+# In this code block you put the actual analysis code of your data
+
+```
+
+# Results
+Replace this text with a short prose/numeric report of your results following APA standards 
+
+## Discussion
+Replace this text with a very brief prose summary and interpretation (no numbers) of the results and how they relate to the hypotheses

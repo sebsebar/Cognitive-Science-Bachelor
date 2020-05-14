@@ -1,0 +1,228 @@
+---
+title: 'Portfolio 3: The Reading Experiment'
+author: "Sebastian Scott Engen"
+date: "11/09/2017"
+output: word_document
+---
+
+## Portfolio 3: The Reading Experiment 
+
+In this portfolio assignment, you will be conducting analyses of data from your reading experiment. The portfolio has two overall sections asking different questions: 1) A correlational section investigating what aspects of words predict reading time, and 2) an experimental section asking about the way that contextual expectancies affect our reading time by contrasting two conditions.
+
+For each analyses, remember to make qualified choices of statistical test based on assumption testing.
+Futhermore, for each analysis, provide a written report following APA conventions and a plot that illustrates the result  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# First we start out by loading the packages we'll use:
+library(tidyverse) ; library(stringr) ; library(stringi) ; library(pastecs) ; library(WRS2)
+# Then we set the Working Directory
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Portfolio 3")
+
+```
+```
+# 1) What properties of words predict word-by-word reading time?
+
+Conduct minimum three correlational analyses where you investigate the relation between reading time and relevant predictors such as e.g. word length, frequencies, etc. 
+```
+#Checking assumptions
+```{r}
+# First we start out by choosing a set of data from our reading experiment - we chose Thomas's data
+data <- read.csv("logfile_Thomas Hagen Hansen2.csv", sep = ",")
+
+# We start out making a qqplot over reactiontime
+qqnorm(data$Reaction.Time, main = "QQ-Plot of over Reactiontime")
+# it doesn't look normally distributed
+
+#We'll try to get a better look by making a histogram over reactiontime 
+ggplot(data, aes(x = Reaction.Time))+
+  geom_histogram(aes(y = ..density..))+
+  stat_function(fun = dnorm,
+                args = list(mean = mean(data$Reaction.Time), 
+                sd = sd(data$Reaction.Time)), color = "orange")+
+  labs(title = "Histogram with reaction time and condition")
+#This also shows us that the data aren't "really" normally distributed
+
+# At last we'll use the stat.desc function:
+round(stat.desc(data$Reaction.Time, basic = FALSE, norm = TRUE),3)
+# Which shows us, that yes. We suffer from both kurtosis and positive skew
+
+# We try to do 3 different transformations on our reading data to get it normally distributed
+data$log <- log(data$Reaction.Time)
+qqnorm(data$log, main = "QQ-Plot of Logarithmic transformation") 
+
+data$sqrt <- sqrt(data$Reaction.Time)
+qqnorm(data$sqrt, main = "QQ-Plot of Squareroot transformation") 
+
+data$RT <- 1/(data$Reaction.Time)
+qqnorm(data$RT, main = "QQ-Plot of Reciprocal transformation") 
+# # The reciprocal qqplot seems fairly normal - We'll go ahead with these transformed data and check to be sure that it's really normally distribute. 
+#We'll return normal distribution statistics on our reciprocal transformation:
+round(stat.desc(data$RT, basic = FALSE, norm = TRUE),3)
+#Our skew.2SE and kurt.2SE is -2.537 and  1.211 seperately, which is lower than -1 and higher than 1 seperately, and this means that the skewness and kurtosis is still significantly different from zero
+# So.. Good thing we checked! Now we found out that the reciprocal data still wasn't normally distributed, so we'll use the more robust non-parametric spearmans-test in the coming correlational studies
+```
+
+```{r}
+# Correlational study 1 - Reaction Time and Word Length
+
+# First we'll make a new column in our "Thomas" data with the mutate function, and use the stri_length function to count the letters in all the words
+#But before we do that we need to remove all the special caracters and make the words Uppercase, so we later on can get some statistics from the 'MRC Psycholinguistic Database'
+data$clean_words <- str_replace_all(data$Word, pattern = "[[:punct:]]", replacement = "")
+data$clean_words <- toupper(data$clean_words) #make words upper case 
+data <- mutate(data, Word_length = stri_length(data$clean_words))
+# Now we'll make a correlation test to see if the reactiontime and the word length are correlated, and we'll use spearmans method since we didn't get any normal distributions with our earlier transformations of the Thomas data.
+cor.test(data$Word_length , data$Reaction.Time, method = "spearman")
+# we calculate rho^2
+((0.1963504^2)*100)
+
+#as can be seen in the correlation test, p-value is .007 and therefore below .05, so the relation between variables is significant. Rho is .196 which is above 0.1 which means we have a small effect -> Rho^2 is 0.04, which means that word_length captures 4% of the variance in Thomas's reaction times
+
+# We'll now show the relation with a scatterplot and and a linear model.
+ggplot(data, aes(x = Word_length, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+#as seen on the graph, we can see that by increasing word length we increase the reaction time 
+```
+```
+Report goes here: Word length	was	found	to be positively correlated	with	
+the	reaction time of the participant Thomas:	r_s = .20,	p <	.05
+```
+```{r}
+# Correlational study 2 - Reaction Time and Word Frequency
+
+#Here we make a word_string of our variable clea_words taht we can plug into the UWC psycholinguistic database
+word_list <- data$clean_words #turn column into a list
+word_list <- unique(word_list) #removes duplicates from text 
+word_string <-  paste( unlist(word_list), collapse=" ") #put a space in between all elements 
+word_string
+
+#We copy the string into MRC database with brown-frequency ratings, manually copy it into excel, Use the text to columns function to seperate the data, and finish of saving the output as CSV.
+# then we read the CSV file
+freq <- read.csv("brown_frequency.csv", header = F, sep = ";",na.strings = "-")
+
+
+colnames(freq) = c("clean_words", "frequency") # we rename the columns in our new Dataframe
+merged_df <-merge(data, freq, by = "clean_words") #then merge the new predictor with the old dataset
+
+#And finish off runing a cor.test on the browns word frequency and Reactiontime
+cor.test(x= merged_df$freq, y = merged_df$Reaction.Time, method = "spearman")
+# we calculate rho^2
+(((-0.1644064)^2)*100)
+
+#it can be seen that p-value (.03) is below .05 which means that the relation is significant. Rho is negative (-0.16) which indicates that with higher frequencyscores follow smaller reactiontimes, furthermore it indicates that we see a little effect. Rho^2 is 2.7, which means that we have incaptured 2.7% of the variance
+
+# We'll now show the relation with a scatterplot and and a linear model.
+ggplot(merged_df, aes(x = frequency, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+#as seen on the graph the reaction time is negatively correlated with frequencyscore
+```
+```
+Report goes here: Brown frequency	was	found	to be negatively correlated	with	
+the	reaction time of the participant Thomas: r_s = -.16, p < .05
+```
+```{r}
+# Correlational study 3 - Reaction Time and Imaginability
+
+#We copy the string into MRC database with imaginability ratings, manually copy it into excel, Use the text to columns function to seperate the data, and finish of saving the output as CSV.
+# then we read the CSV file
+imaginability <- read.csv("imaginability.csv", header = F, sep = ";",na.strings = "-")
+colnames(imaginability) = c("clean_words", "imaginability") #rename the columns
+merged_df2 <-merge(data, imaginability, by = "clean_words") #merge new predictor with the old dataset
+
+cor.test(x = merged_df2 $imaginability, y = merged_df2$Reaction.Time, method = "spearman")
+# we calculate rho^2
+(((0.01679731)^2)*100)
+#0.03%
+
+#we can see that p-value is not significant and therefore we must acknowledge that we cannot observe any significant relation between imaginability and reaction time. Furthermore, rho is to small to indicate any effect. rho^2 squared tells us that we only capture 0.03% of the variance
+
+# We'll now show the insignificant relation with a scatterplot and and a linear model.
+ggplot(merged_df2, aes(x = imaginability, y = Reaction.Time )) + 
+  geom_point()+
+  geom_smooth(method = lm)
+#although it's not significant a linear model seems to point in the direction that there is a negative correlation between imaginability and reactiontime
+```
+```
+Report goes here: imaginability	wasn't found to be significantly correlated	with the	reaction time of the participant Thomas: r_s = .02, p > 0.05
+
+# 2) How does contextual expectations affect reading time?
+
+Conduct a contrastive analysis of the two conditions in your reading experiment. Single out reading time of the words that differ between the two versions of your text/story and compare the means using a t-test. 
+```
+```{r}
+# code for the t-test study  
+
+#Now we'll import all of our colelcted datafiles from the reading experiment (20 in total)
+#First we look trough our Working Directory and make list of filenames
+filenames <- list.files(pattern = "logfile*") 
+t_test_data = data.frame() #create a new empty df for this second part of the portfolio
+for (i in filenames) {	#the we loop over the list of files
+  file = read.csv(i)	#we import the current file
+  t_test_data = rbind(t_test_data, file[162,]) 
+  #and append the 162th line of the current file to our new df 't_test_data'using the rbind function
+}
+
+#we want to test if our data are normally distributed 
+ggplot(t_test_data, aes(x = Reaction.Time))+
+  geom_histogram(aes(y = ..density..), binwidth = 0.06)+
+   stat_function(fun = dnorm, args = list(mean = mean(t_test_data$Reaction.Time), sd = sd(t_test_data$Reaction.Time)))+ facet_wrap(~ Condition)
+#according to the histogram it seems that we are approching normal distribution in condition 1 but condition 2 seems to be more positively skewed - Let's see it visualized
+ggplot(t_test_data, aes(x=Word,y = Reaction.Time)) + geom_boxplot() + facet_wrap(~Condition)
+  
+#we'll try to draw qqplots to see it in another way
+qqnorm(t_test_data$Reaction.Time, main = "QQ-Plot of reactiontime") 
+
+#Now let's get some numbers using the stat.desc function
+round(stat.desc(t_test_data$Reaction.Time,basic = FALSE, norm = TRUE),3) 
+#normtest.p is significant (<.05), which means that the scores are significantly different from a normal distribution, but skew2SE and kurt2SE are between 1 and -1, which is relatively small.
+# we'll try to use some transformations to bring about a normaldistribution
+
+t_test_data <-  mutate(t_test_data, logRT = log(Reaction.Time), sqrtRT = sqrt(Reaction.Time), RT = 1/(Reaction.Time))
+
+# we'll run a few QQplots to check if the transformations worked in our favour
+qqnorm(t_test_data$logRT, main = "QQ-Plot of Logarithmic transformation")
+qqnorm(t_test_data$sqrtRT, main = "QQ-Plot of Squareroot transformation")
+qqnorm(t_test_data$RT, main = "QQ-Plot of Reciprocal transformation")
+
+# We'll include some normal distribution statistics
+round(stat.desc(t_test_data$logRT,basic = FALSE, norm = TRUE),3)
+round(stat.desc(t_test_data$sqrtRT,basic = FALSE, norm = TRUE),3)
+round(stat.desc(t_test_data$RT,basic = FALSE, norm = TRUE),3)
+# Both the Logarithmic and Reciprocal transformation worked. the p-value (>.05) is not significantly different from a normaldistribution - we'll go ahead with the reciprocal transformed data, sice the show the higher P-value (0.09)
+```
+```
+T-testing
+```
+```{r}
+#We got the t_test_data normally distributed with the reciprocal transformation
+#Now we'll run the test
+t.test(RT ~ Condition , data = t_test_data)
+
+#here we see that the p-value is over .05, which means that we can't tell if there's any significant difference in means between the two conditions.
+#This can be visualized in a barplot
+ggplot(t_test_data, aes( x = Condition ,y = RT ))+
+   geom_bar(stat = "summary", fun.y= mean)+
+  geom_errorbar(stat = "summary", fun.data = mean_se, width = 0.2)
+#in the bar chart we can see that error bars overlap, which means we can't significantly tell their means apart.
+ggplot(t_test_data, aes(x=Word,y = RT)) + geom_boxplot() + facet_wrap(~Condition)
+#Futhermore the t-test tells us that the confidence interval crosses 0, with -1.16 and 0.68, which means we can't tell if there is a negative or positive relationship between the two conditions.
+
+# Calculating the Standard error
+by(t_test_data$RT, t_test_data$Condition, stat.desc, basic = FALSE, norm = TRUE)
+
+#Calculating the Rho coefficient
+t <- -0.55207
+df <- 17.527
+r <- sqrt((t^2)/((t^2)+df))
+r
+#and effectsize
+(r^2)*100
+# r= 0.1307365, which means we see a small effect and r^2 = 1.709203, which means that we can explain 1.7% of the variance better than a mean model
+```
+```
+Report goes here: 
+“On average, participants did not experience significantly greater readingtime from an unexpected word (M = 2.28, SE = 0.28) than from an expected words (M = 2.04, SE = 0.33),t(17.53) = -0.55 , p > .05, r=.13 
+-> The degrees of freedom is not 18, because it was adjusted using the Welsch-test
+```

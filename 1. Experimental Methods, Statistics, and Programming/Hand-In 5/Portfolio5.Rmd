@@ -1,0 +1,137 @@
+---
+title: "The Sound Symbolism Experiment"
+author: "Sebastian Scott Engen"
+date: "12/06/2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+This experiment investigated the relation if vowel/consonant sounds could be used to predict classification of figures of different shapes and sizes.
+The sound symbolism experiment showed that the vowel O, compared to the vowel I,served as a significant	postive predictor of big and curved figures. And that the consonant K, compared to B, served as a significant	negative predictor of curved figures.
+
+## Introduction 
+- The arbitraryness of language
+- The kiki-Bouba effect (comparing to the original experiment)
+
+## Materials and Methods
+The experiment included 35 participant, who were all presented with 32 scenarios. Each scenario included two figure and one name that could be chosen for the given figure using the arrowkeys on the keyboard.
+
+# Analysis
+We used	a	mixed	effects	model	with	shape (Jagged or Curved) and size (Big or Small) as	the	outcome	variables,	consonants and vowels	as	fixed	effects,	and	participant ID	as	random	effects.
+size ~ vowel + (1|id)
+size ~ consonant + (1|id)
+shape ~ vowel + (1|id)
+shape ~ consonant + (1|id)
+
+```{r, echo=FALSE}
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/portfolios/portfolio 5")
+library(lmerTest) ; library(boot) ; library(caret) ; library(mlogit) ; library(MuMIn) ; library(car) ; library(Rcmdr)
+# notice that echo = FALSE which means that this part of the analysis will not be visible in the report
+load("kikikoko_new.Rda")
+```
+
+
+```{r}
+# In terms of size and shape, we'll determine the baseline for R with releveling. That means that we´ll make predictions about how much more likely it is get big shapes compared to small and curved shapes compared to jagged:
+kikibobo3$size <- relevel(kikibobo3$size, "sma")
+# Small will be the baseline
+
+kikibobo3$shape <- relevel(kikibobo3$shape, "jagged")
+#Jagged will be the baseline
+
+#Size-Vowel model
+model1 = glmer(size ~ vowel + (1|id), data = kikibobo3, family = "binomial")
+summary(model1)
+"
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.19346    0.08491  -2.278   0.0227 *  
+vowelO       0.48114    0.12042   3.995 6.46e-05 ***
+"
+# The vocal O
+#Odds
+exp(-0.19346+0.48114)
+# odds are 1.333331
+# Odds are above 1 - so we can expect that there is a higher probability of choosing a big model with the vowel O
+# The exact Probabilities
+inv.logit(-0.19346+0.48114)
+# the probabilities are 57% of choosing a big model when the vowel is an O 
+
+#Size-consonant model
+model1.2 = glmer(size ~ consonant + (1|id), data = kikibobo3, family = "binomial")
+summary(model1.2)
+
+"
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept) 0.007143   0.084516   0.084    0.933
+consonantK  0.078624   0.119578   0.658    0.511
+"
+# The P-value isn't significant so we won't try to find the probability for consonants effect on size
+
+
+
+
+#Shape-Consonant model
+model2 <- glmer(shape ~ consonant + (1|id), data = kikibobo3, family = "binomial")
+summary(model2)
+"
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   1.5882     0.1126   14.11   <2e-16 ***
+consonantK   -2.5576     0.1471  -17.39   <2e-16 ***
+"
+
+# The consonant K
+#odds
+exp(1.5882-2.5576)
+# odds are 0.3793106
+# Odds are below 1 - so we can expect that there is a lower probability of choosing a curved model with the consonant k
+#Probabilities
+inv.logit(1.5882-2.5576)
+# the probabilities are 28% of choosing a curved model when the consonant is an K
+
+#Shape-Vowel model
+model2.2 <- glmer(shape ~ vowel + (1|id), data = kikibobo3, family = "binomial")
+summary(model2.2)
+"
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.19346    0.08491  -2.278   0.0227 *  
+vowelO       0.82823    0.12287   6.741 1.58e-11 ***
+"
+
+# The vocal O
+#Odds
+exp(-0.19346+ 0.82823)
+# odds are 1.886588
+# Odds are above 1 - so we can expect that there is a higher probability of choosing a curved model with the vowel O
+#Probabilities
+inv.logit(-0.19346+ 0.82823)
+# the probabilities are 65% of choosing a curved model when the vowel is an O
+```
+
+# Results
+The sound symbolism experiment showed that the vowel O	served as a significant	positive predictor of the size 'big':	b =	0.48114	(SE =	0.12042),	z =	3.995,	p <	.001
+
+The sound symbolism experiment showed that the consonant K	served as a significant	negative predictor of the shape 'curved':	b =	-2.5576	(SE = 0.1471),	z =	-17.39,	p <	.001
+
+The sound symbolism experiment showed that the vowel O	served as a significant	positive predictor of the shape 'curved':	b =	0.82823	(SE =	0.12287),	z =	6.741,	p <	.001
+
+
+## Discussion
+
+The sound symbolism task has shown that K is assosiated with the jagged figures and B is assosiated with curved figures. Furthermore O is assosiated with big models and I is assosiated with smaller figures.
+
+Limitations:
+- The participants in the study could be biased since they knew what theoretical work it was trying to replicate.
+- Next to this an important factor is that the participants might have been influenced by the fact that the figures were drawn up with lines of different thickness. Aditionaly to this, some of the figures were also blurry, which might have influenced the choice of the participants
+- Another factor that hasn't been accounted for either is that the internal pronounciation, in the participants heads, might be different duo to dialect and accent.
+- To this it could also be taking into consideration that some participants just looked at the letters of the words - e.g. the jaggedness of a K compared to a B - and not the sound-difference.
+- A fifth factor that might have influenced the choices of the participants is that they we're limited to choose from two figures at a time, so even though vowel O might generally be recognised as being part of words for Big shapes - the participant could be presented with only small figures and a word with the vowel O, which forces them to choose a small shape, while if they only had the choice to also choose a big figure, they would have.
+
+Further research would be to do a study were all the current limitations have been eliminated.

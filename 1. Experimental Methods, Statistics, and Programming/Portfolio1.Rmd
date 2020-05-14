@@ -1,0 +1,87 @@
+---
+title: "Experimental Methods I - portfolio 1"
+author: "your name"
+date: "9/26/2017"
+output: word_document #change this if you want a different output format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# libraries here
+
+# set working directory here
+
+# import data set here
+
+
+```
+
+# Portfolio 1: Datamining of the CogSci 2017 Personality Data
+
+Use the tools you have acquired in the exercises to answer the following questions about the CogSci Personality Data. You answer each questions 'numerically' by using code in a Rmarkdown code block, 'visually' in a graph if that is requested in the assignment, and in 'prose', i.e. a short written interpretation that answers the question.
+Remember to comment your code!
+
+##1) Who, on average, is faster at the tongue twister task, right-handers or left-handers? 
+(please provide numeric, visual, and verbal answer)
+```{r}
+# code goes here
+
+
+# graph code goes here
+
+```
+
+Your written response goes here:
+
+
+##2) Who prefers higher volumes of music, males or females?
+(please provide numeric, visual, and verbal answer)
+```{r}
+# code goes here
+
+
+# graph code goes here
+
+```
+
+Your written response goes here:
+
+##3) Is there a systematic relation between occular dominance and the rabbit-duck illusion?
+E.g. does people with right occular dominance see the duck more than the rabbit?
+(please provide numeric and verbal answer. A graph is optional)
+
+```{r}
+# code goes here
+
+
+# optional graph code goes here
+
+```
+
+Your written response goes here:
+
+##4) Do we observe differences in variance (measured by standard deviation) in music consumption between those who have Danish as their native language and those who speaks a different native language?
+(please provide numeric and verbal answer. Optionally you can also provide a graph)
+```{r}
+# code goes here
+
+
+# optional graph code goes here
+
+```
+
+Your written response goes here:
+
+##5) Calculate the average music consumption per day for those who can touch the floor and those who can't. Do you observe a relation between music consumption and preference for volume in the two groups (just from looking at the data and graph)?
+
+(please provide numeric, visual, and verbal answer)
+```{r}
+# code goes here
+
+
+# graph code goes here
+
+```
+
+Your written response goes here:

@@ -1,0 +1,892 @@
+ACOUST_ANA_DESCR,DESCRIPTION,COMMENTS,frequency,ArticleID,StudyID,Title,Authors,Year_publication,Article,SAMPLE_SIZE_SZ,SAMPLE_SIZE_HC,PITCH_F0_HC_M,PITCH_F0_HC_SD,PITCH_F0_SZ_M,PITCH_F0_SZ_SD,PITCH_F0SD_HC_M,PITCH_F0SD_HC_SD,PITCH_F0SD_SZ_M,PITCH_F0SD_SZ_SD,pitch_f0_variability
+"After the recording session, each word was segmented using Praat software. First, voice
+stimuli were normalised according to peak amplitude by means of a Praat script. Audacity
+software was used for noise reduction. Then, stimuli were cut at the beginning and at the
+end of each word, using Praat software. Mean pitch, intensity and duration were subsequently
+calculated for each condition (","F0_min, F0_max, Intensity_M, Words Dur(ms)",For pitch it is also reported the minimum and mazinum F0. We can use them?,hz,1,1,Emotional self-other voice processing in schizophrenia and its relationship with hallucinations: ERP evidence.,"Pinheiro AP, Rezaii N, Rauber A, Nestor PG, Spencer KM, Niznikiewicz M.",2016,Pinheiro et al. (2016),17,18,137.24666666666667,29.983333333333334,148.04333333333332,23.896666666666665,NA,NA,NA,NA,NA
+"These
+parameters include prosodic features (formant 1 to 6 [F1
+to F6, unit: Hz], formant bandwidth [unit: Hz], formant
+amplitude [unit: dB]), and two spectral features (the
+linear prediction coding [LPC], and the Mel-frequency
+cepstral coefficient [MFCC]). T","F1,F2,F3,F4,F4,F6 (MEAN?)formant banwidth, formant amplitude, linear prediction coding (LPC) and Mel.frequency cepstral coefficient (MFCC)","They report 6 formants (f1 to f6), plus the bandwidth and the amplitude, plus two cepstral measures. What do i report?",NA,2,2,Clinical investigation of speech signal features among patients with schizophrenia,"Zhang J, Pan Z, Gui C, Zhu J, Cui D.",2016,Zhang et al. (2016),26,30,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A linguist used WaveSurfer 1.8.8 to extract the phonetic linguistic parameters of pitch (F0) and vowel resonances (F1, F2) from the audio recordings. Pitch is only present when the vocal folds are vibrating, as they are for the articulation of vowels (as well as some consonants). The important resonances for vowels (F1 and F2) correspond to the shape of various parts of the vocal tract during their articulation (jaw lowering/tongue height, F1; tongue front/back position and/or lip rounding, F2). The pitch (F0) readings were taken every 10 ms, and for those cases where pitch (and therefore voicing) was present, the following were calculated: (1) stan-dard deviation (SD) of log10 F0 (hereafter simply referred to as SD F0, computed logarithmically because there are large variations in habitual F0 between speakers but pitch is perceived logarithmically), (2) SD of F1, and (3) SD of F2. Main analyses used an average value for each of these SDs from the three speech activities (with post-hoc subanalyses examining any meaningful differences in correlations when examining the individual types of recordings).
+
+To derive a computational measure of how often the speaker pauses, we also computed a “fraction voiced” (FV) variable, ranging from 0 to 1. Participants who speak fluently will have much higher values and those who say less (i.e., with many pauses) will have much smaller values. Although this only counts voiced speech sounds (such as vowels, voiced consonants such as l, m, n, and r, not voiceless consonants such as p, t, k, f, or s), it is a reasonable comparison of the amount of speech between subjects.
+","SD of log F0, SD F1, SD F2, Fraction voiced (FV) as index of pauses",NA,hz,3,3,"Associations of acoustically measured tongue jaw movements and
+portion of time speaking with negative symptom severity in patients
+with schizophrenia in Italy and the United States","Bernardini F, Lunden A, Covington M, Broussard B, Halpern B, Alolayan Y, Crisafio A, Pauselli L, Balducci PM, Capulong L, Attademo L, Lucarini E, Salierno G, Natalicchi L, Quartesan R, Compton MT",2016,Bernardini et al. (2016)_1,20,NA,NA,NA,136.4408607361988,31.93596355683771,NA,NA,0.0875,0.0394,Log10  Hz
+"A linguist used WaveSurfer 1.8.8 to extract the phonetic linguistic parameters of pitch (F0) and vowel resonances (F1, F2) from the audio recordings. Pitch is only present when the vocal folds are vibrating, as they are for the articulation of vowels (as well as some consonants). The important resonances for vowels (F1 and F2) correspond to the shape of various parts of the vocal tract during their articulation (jaw lowering/tongue height, F1; tongue front/back position and/or lip rounding, F2). The pitch (F0) readings were taken every 10 ms, and for those cases where pitch (and therefore voicing) was present, the following were calculated: (1) stan-dard deviation (SD) of log10 F0 (hereafter simply referred to as SD F0, computed logarithmically because there are large variations in habitual F0 between speakers but pitch is perceived logarithmically), (2) SD of F1, and (3) SD of F2. Main analyses used an average value for each of these SDs from the three speech activities (with post-hoc subanalyses examining any meaningful differences in correlations when examining the individual types of recordings).
+
+To derive a computational measure of how often the speaker pauses, we also computed a “fraction voiced” (FV) variable, ranging from 0 to 1. Participants who speak fluently will have much higher values and those who say less (i.e., with many pauses) will have much smaller values. Although this only counts voiced speech sounds (such as vowels, voiced consonants such as l, m, n, and r, not voiceless consonants such as p, t, k, f, or s), it is a reasonable comparison of the amount of speech between subjects.
+","SD of log F0, SD F1, SD F2, Fraction voiced (FV) as index of pauses",NA,hz,3,4,"Associations of acoustically measured tongue jaw movements and
+portion of time speaking with negative symptom severity in patients
+with schizophrenia in Italy and the United States","Bernardini F, Lunden A, Covington M, Broussard B, Halpern B, Alolayan Y, Crisafio A, Pauselli L, Balducci PM, Capulong L, Attademo L, Lucarini E, Salierno G, Natalicchi L, Quartesan R, Compton MT",2016,Bernardini et al. (2016)_2,20,NA,NA,NA,118.93437091899855,30.24209235446983,NA,NA,0.0834,0.0242,Log10  Hz
+"The estimation
+of the prosodic speech profile was performed analyzing
+the variations in the height trajectory and pitch
+perception (prosodic peaks and valleys) of the F0 of the vocalic syllable nuclei that contain voice signals, on a
+peak intensity delimited -3dB and -9dB to left and right,
+respectively, in order to represent the melodic movements
+perceived by the human ear. The value of the
+left limit (–3dB) eliminates most of the microprosodic
+disturbances and stylizes the beginning of the syllable,
+while the right (–9dB) limit preserves the variations in
+tone of accented vowels","Intensity(db), pause rate>300ms, mean F0, f0 sd, f0 range, syllabic dynamics, prosodic peaks, prosodic valleys, intra-syllabic trajectory, inter-syllabic trajectory, phonation tarjectory","They report also f0 range (ST), prosodics peaks and valleys, inta syllabic and phonation trajectory. What we report?",hz,4,5,Can the Acoustic Analysis of Expressive Prosody Discriminate Schizophrenia?,"Martínez-Sánchez F, Muela-Martínez JA, Cortés-Soto P, García Meilán JJ, Vera Ferrándiz JA, Egea Caparrós A, Pujante Valverde IM.",2015,Martínez-Sánchez et al. (2015),45,35,156.57,43.89,143.02,40.33,29.67,8.32,27.5,10.36,hz
+"During each of these frames,
+frequency and volume were quantified. Four particular indices of
+speech characteristics of interest were chosen for analysis: a) mean
+number of utterances of greater than 150 milliseconds (an index of
+speech production); b) number of pauses (>10 milliseconds); c)
+intonation—defined as the variability in the pitch of speech, calculated
+as the mean of standard deviations of the fundamental frequency computed
+separately from each utterance (i.e., lower values represent more
+monotone speech); and d) variability in volume of speech, calculated as
+the mean of standard deviations of the volume computed separately
+from each utterance (i.e., lower values represent more monotone
+speech). The first two variables were chosen to represent the production
+of speech (tapping into the negative symptom construct of “alogia”),
+whereas the second two variableswere chosen to represent two different
+aspects of blunted or monotone speech (variability of fundamental frequency
+and volume).","Mean n. utterance > 150 ms, pauses > 10ms, SD F0 computed separately for each utterance, SD of volume variation for each utterance",NA,NA,5,6,Speech prosody abnormalities and specific dimensional schizotypy features are relationships limited to male participants,"Bedwell, Jeffrey S., et al",2014,Bedwell et al. (2014),8,36,NA,NA,NA,NA,0.0348,0.016,0.0382,0.015,"not specified, maybe hz?"
+"Our acoustic analysis separates pitch (associated with
+the fundamental frequency of voice) from voice level
+(associated with voice amplitude) and we will examine
+each separately as correlates of the SANS Vocal Inflection
+item, Lack of Vocal Inflection. We report the variance
+of F0, called Frequency Variance and the variance
+of voice level, called Amplitude Variance across syllables.
+We detect the sound pulses frequently associated
+with vowel production, usually syllables, and measure
+F0 at the point of maximal loudness of each syllable. To
+compensate for differences in the mean F0 of different
+speakers, we record these measures in semitones related
+to the speaker’s mean F0. In this way a speaker with a
+mean F0 at 100 hertz and variance of 1 semitone can be
+directly compared with a speaker whose mean F0 is 200
+hertz, with a similar range. In a bell-shaped distribution,
+the variance is not correlated with the mean. Similarly,
+we measure emphasis in decibels (dB) in reference to a
+calibration level. With several hundred syllables in a 15-
+min speech sample, the variances of F0 and voice level
+are stable measures.                                                        We calculate the percent of the patient’s floor time that
+is used for talking, called Percent Time Talking, as a
+correlate of the SANS Poverty of Speech item. The
+numerator is the sum of the time that the patient’s
+speech signal is above the silence threshold. The
+denominator includes the sum of speaking time plus the
+patient’s response latency as well as the sum of time
+spent pausing.                                                                    Finally, there is a SANS item to rate patients for
+Increased Latency of Response. As a correlate of this
+item we measure the time from the end of the interviewer’s
+question or comment to the beginning of the
+patient’s response, called Subject Response Latency.
+Sometimes interviewers make encouraging sounds to
+keep the patient talking. We separate responses that
+follow brief comments or ‘uhms’ and ‘ahs’, and report
+only response latencies that follow at least one second
+of interviewer speech. Latencies tend to produce asymmetrical
+distributions and we transform (square root)
+measures of time before averaging them","sd F0 in semitones?, variance of voice level or amplitude (db) across syllables?.",NO CG,NA,6,7,A comparison of clinical ratings with vocal acoustic measures of flat affect and alogia.,"Alpert, M., Shaw, R. J., Pouget, E. R., & Lim, K. O.",2002,Alpert et al. (2002),30,NA,NA,NA,NA,NA,NA,NA,0.5,0.28,Frequency variance in semitones
+"1. Number of Pauses
+2. Mean Pause Duration
+3. Proportion of Silence
+4. Mean Utterance Duration
+5. Total Recording Time
+6. Total Length of Pauses
+7. Total Length of Utterances
+8. Relative Variation in Energy
+9. Relative Variation in Vocal Pitch  10. Mean Vocal pithc (not reported)","1. Number of Pauses
+2. Mean Pause Duration
+3. Proportion of Silence
+4. Mean Utterance Duration
+5. Total Recording Time
+6. Total Length of Pauses
+7. Total Length of Utterances
+8. Relative Variation in Energy
+9. Relative Variation in Vocal Pitch  10. Mean Vocal pithc (not reported)","Several mesures of speech and pause production, and energy measures not clear",NA,7,8,Acoustic and temporal analysis of speech: A potential biomarker for schizophrenia.,"Rapcan, V., D’Arcy, S., Yeap, S., Afzal, N., Thakore, J., & Reilly, R. B.",2010,Rapcan et al. (2010),39,18,NA,NA,NA,NA,0.24,0.08,0.22,0.05,Relative variaton in local pitch - coefficient variation ok
+"1) Pause proportion: Percentage of time the sample contained
+a pitch above baseline from time of first
+utterance to final utterance 2)Duration: Time from beginning to end of a defined
+speech sample
+Beginning and end were determined by
+detecting a change in pitch 3) Attack: Rise in amplitude (loudness) over time
+for a given phoneme 4) Pitch variability: Standard deviation in Hertz of the pitch
+maximum and minimum across an
+utterance, same as the standard deviation
+of the fundamental frequency
+Beginning defined as change in slope
+from baseline
+Occasionally slope changed direction.
+To ensure reproducibility, end defined
+by maximum amplitude 4)","1)SD of min and max pitch F0 across an utterance 2) rise in amplitude of a phonem in in a given time 3) duration of speech sample, determined by change in pitcj 4) pause proprtion ?","Several condition, difficult to figure out how they reported the results. Check with Riccardo.",NA,8,9,Prosodic abnormalities in schizotypal personality disorder.,"Dickey, C. C., Vu, M. A. T., Voglmaier, M. M., Niznikiewicz, M. A., McCarley, R. W., & Panych, L. P.",2012,Dickey et al. (2012)_1,28,27,NA,NA,NA,NA,79.72826086956522,43.18478260869565,62.72826086956522,44.56956521739131,sd in hz of the pitch maximum and minimum
+"1) Pause proportion: Percentage of time the sample contained
+a pitch above baseline from time of first
+utterance to final utterance 2)Duration: Time from beginning to end of a defined
+speech sample
+Beginning and end were determined by
+detecting a change in pitch 3) Attack: Rise in amplitude (loudness) over time
+for a given phoneme 4) Pitch variability: Standard deviation in Hertz of the pitch
+maximum and minimum across an
+utterance, same as the standard deviation
+of the fundamental frequency
+Beginning defined as change in slope
+from baseline
+Occasionally slope changed direction.
+To ensure reproducibility, end defined
+by maximum amplitude 4)","1)SD of min and max pitch F0 across an utterance 2) rise in amplitude of a phonem in in a given time 3) duration of speech sample, determined by change in pitcj 4) pause proprtion ?","Several condition, difficult to figure out how they reported the results. Check with Riccardo.",NA,8,9,Prosodic abnormalities in schizotypal personality disorder.,"Dickey, C. C., Vu, M. A. T., Voglmaier, M. M., Niznikiewicz, M. A., McCarley, R. W., & Panych, L. P.",2012,Dickey et al. (2012)_2,28,27,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Following the guidelines of Alpert et al,2 pauses with
+a threshold greater than 200 milliseconds were marked with
+vertical cursors starting from the offset of detectable spectral
+energy from the word preceding the pause to the onset of
+visible spectral energy of the word following the pause. This
+procedure was automated through the use of the scripting
+macros in Praat and set to mark all segments of pause that met
+intensity (eg, set at the dB level + 6 of a silent feature on the
+recording, usually a break between tasks) and temporal criteria
+(eg, greater than 200 milliseconds; Fig.1). In this way, for each
+task, the durations of all pauses greater than 200 milliseconds
+were measured, and then the number of pauses, average pause
+duration, standard deviation of pause duration, total cumulative
+pause time, and percentage of the total speaking time that
+was pause were all calculated","n.of pauses, (>200ms), average pause dur, sd of pause duration, total cumulative pause time, % of total speaking time","4 different pauses measures, which do we report?",NA,9,10,Bradyphrenia and bradykinesia both contribute to altered speech in schizophrenia: a quantitative acoustic study.,"Cannizzaro, M. S., Cohen, H., Rappard, F., & Snyder, P. J.",2005,Cannizzaro et al. (2005)_1,13,6,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Following the guidelines of Alpert et al,2 pauses with
+a threshold greater than 200 milliseconds were marked with
+vertical cursors starting from the offset of detectable spectral
+energy from the word preceding the pause to the onset of
+visible spectral energy of the word following the pause. This
+procedure was automated through the use of the scripting
+macros in Praat and set to mark all segments of pause that met
+intensity (eg, set at the dB level + 6 of a silent feature on the
+recording, usually a break between tasks) and temporal criteria
+(eg, greater than 200 milliseconds; Fig.1). In this way, for each
+task, the durations of all pauses greater than 200 milliseconds
+were measured, and then the number of pauses, average pause
+duration, standard deviation of pause duration, total cumulative
+pause time, and percentage of the total speaking time that
+was pause were all calculated","n.of pauses, (>200ms), average pause dur, sd of pause duration, total cumulative pause time, % of total speaking time","4 different pauses measures, which do we report?",NA,9,10,Bradyphrenia and bradykinesia both contribute to altered speech in schizophrenia: a quantitative acoustic study.,"Cannizzaro, M. S., Cohen, H., Rappard, F., & Snyder, P. J.",2005,Cannizzaro et al. (2005)_2,13,6,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Voice F0 measurements were made
+with Praat Software (P. Boersma & D. Weenink, www.praat.org) on
+recordings of the vowel “a” sampled to exclude transients and adjusted
+to 300 ms in duration.","F0 (ns,mean?) adjusted 300ms in duration",NA,hz,10,11,"Higher fundamental voice frequency is
+related to extrapyramidal symptoms
+in schizophrenia","Graux, J., Courtine, J. B., Bruneau, N., Camus, V., & El-Hage, W.",2015,Graux et al. (2011),26,26,112,14,123,19,NA,NA,NA,NA,NA
+"Their speech was analyzed using a
+system called Automatic Statistical Summary of Elementary
+Speech Structures (ASSESS), which incorporates
+automatic analysis routines and provides detailed
+information on pitch, intensity/loudness and duration
+(speaking rate and pausing) (Cowie et al., 1995).ASSESS summarizes properties of these parameters
+using 275 statistics including primarily measures of
+midpoint and spread. These describe broadly how
+pitch and intensity behave over time as well as detecting
+more subtle nuances of prosodic expression.","pitch, intensity/loudness and duration, speaking rate and pausing",NA,NA,11,12,Can patients with chronic schizophrenia express emotion? A speech analysis.,"McGilloway, S., Cooper, S. J., & Douglas-Cowie, E.",2003,McGilloway et al. (2003),72,40,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The following
+measures, described in Alpert et al. (1993), were collected: a) inflection,
+composed of pitch and pitch variance; b) speech rate; c) pause, consisting of inturn
+gaps; d) dyad, consisting of interaction variables such as turn taking and
+switching pauses; e) utterance, consisting of clause length variables; and f)
+emphasis, consisting of variations in syllable loudness. Voice data were aggregated
+across the three emotional monologues and structured interview. Measures were
+converted to z‐scores to facilitate group comparisons.","inflection( pitch and ptich variance), speech rate, pause, emphasis","Divisi in due gruppi (flat vs non flat, n=12)  e acoustic measures reported only by groups. Correlation reported for the all group.",NA,12,13,Constricted expressiveness and psychophysiological reactivity in schizophrenia.,"Sison, C. E., Alpert, M., Fudge, R., & Stern, R. M. (",1996,Sison et al. (1996),24,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"We measured blunt affect in terms of inflection,
+which was computed as the standard deviation of the fundamental frequency.1 Alogia was measured as speech
+rate in words per second. This variable was computed as
+the total word count divided by the total length of the
+speech sample with the interviewer’s voice removed. Due
+to variability in recording conditions across subjects we
+were unable to measure vocal emphasis, a component of
+blunt affect","sd F0, speech rate (tot word/tot length)",NA,NA,13,14,Computerized measurement of negative symptoms in schizophrenia.,"Cohen, A. S., Alpert, M., Nienow, T. M., Dinzeo, T. J., & Docherty, N. M.",2008,Cohen et al. (2008),60,19,NA,NA,NA,NA,21.56,6.78,17.642666666666667,7.277333333333334,SD of F0 IN hz
+"We examined
+the following variables in this study: word count — number of words
+expressed during the speech sample, pause number — total count of
+all pauses in the speech sample, pause length — mean length of pauses
+(in milliseconds), utterance length — mean length of utterances (in
+milliseconds), local intonation — average standard deviation of fundamental
+frequency values computed separately for each utterance, global
+intonation — standard deviation of local intonation values across the
+speech sample, local emphasis — average standard deviation of intensity
+(i.e., volume) values, computed separately for each utterance, and global
+emphasis—standard deviation of local intensity values across the speech
+sample. All fundamental frequency values were log-transformed to
+control for their nonlinear distribution.","word count, pause number, pause legth, utterance length, local intonation, global intonation, global emphasis",NA,NA,14,15,The normalities and abnormalities associated with speech in psychometrically-defined schizotypy.,"Cohen, A. S., Auster, T. L., McGovern, J. E., & MacAulay, R. K",2014,Cohen et al. (2014),39,37,NA,NA,NA,NA,2.874332905995645,0.05473897617841006,3.354640589129715,0.193345457797925,"global intonation=standard deviation of local intonation values across the speech sample (local intonation = average standard deviation of fundamental
+frequency values computed separately for each utterance)"
+"FOUR VARIABLES: inflection,
+computed as the variability in fundamental frequency; emphasis,
+computed as the variability in volume; and intensity, defined as
+the mean volume of speech. We also measured linguistic expression
+in terms of speech production, defined as the percentage of
+frames that were voiced during the speaking task. All fundamental
+frequency values were converted to semitones to control for their
+nonlinear distribution, which has the added benefit of controlling
+for differences in fundamental frequency between men and
+women.
+We used entropy statistics to understand variability in frequency
+and volume (i.e., inflection and emphasis) because they provide a
+more sensitive measure of signal variability than variance and
+standard deviation scores (Lai, Mayer-Kress, & Newell, 2006). As
+in our prior research, entropy scores reported here reflect a percentage
+of maximal entropy to correct for individual differences in
+amount of speech production. Increasing entropy scores reflect
+increasing variability in signal. For further discussion of our use of
+entropy statistics for understanding vocal prosody, see Cohen and
+Hong (in press) and Cohen, Iglesias, and Minor (2009).","inflection as var in f0 (sd?), emphasis as variability in volume, intensity as mean volume of speech, and speech production as % of frames voice during task
+
+",NA,NA,15,16,Towards a cognitive resource limitations model of diminished expression in schizotypy.,"Cohen, A. S., Morrison, S. C., Brown, L. A., & Minor, K. S.",2011,Cohen et al. (2011a),38,34,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Summary variables, selected based on recent
+studies (Cohen et al., 2016; Cohen et al., 2013), included: mean pause time (i.e., average voiceless epoch bounded by speech N150 ms in length), intonation (i.e., standard deviation of the fundamental frequency
+values computedwithin a voiced epoch [i.e., an “utterance”], then averaged
+across utterances), and emphasis (i.e., standard deviation of the
+volume computed within an utterance, then averaged across utterances),
+as were neutral, happy and negative (sum of sad, anger, scared)
+facial expressions. Extreme values were “winsorized” (i.e., replaced
+with values 3.5 SD from the overall means).","mean pause time, intonation  and emphasis",NA,NA,16,17,"The effects of oxytocin and galantamine on
+objectively-defined vocal and facial expression: Data from the CIDAR study.
+","Cohen, A. S., Mitchell, K. R., Strauss, G. P., Blanchard, J. J., Buchanan, R. W., Kelly, D. L., ... & Carpenter, W. T.",2017,Cohen et al. (2017),40,NA,NA,NA,NA,NA,NA,NA,2.42,1.1133333333333333,"standard deviation of the fundamental frequency
+values computedwithin a voiced epoch [i.e., an “utterance”], then averaged
+across utterances"
+"We computed (a)
+vocal output—defined as the total percentage of frames that were voiced,
+(b) fundamental frequency—defined as the lowest harmonic tone in semitones,
+(c) inflection—defined as the variability in fundamental frequency
+using information entropy (Shannon, 1948—see below), and (d) intensity—
+defined as the volume in decibels expressed during voiced fames.","Vocal output, f0, inflection and intensity",NA,semitones,17,18,"Understanding constricted affect in schizotypy through computerized prosodic analysis.25(4), 478-491.","Cohen, A. S., & Hong, S. L.",2011,Cohen et al. (2011b),89,26,56.92,7.89,58.87,7.7,NA,NA,NA,NA,NA
+"The variables examined in this study included the following: average
+pause time (Pause x̄ ) — computed as the average millisecond pause
+between utterances; inflection — computed as the standard deviation
+of the fundamental frequency, computed from the standard deviation
+scoreswithin each utterance; intensity—computed as themean volume
+across utterances, and emphasis — computed as the standard deviation
+of the volume, computed from the standard deviation scores within
+each utterance. The inflection, intensity
+and emphasis variables were converted to z-score format and
+summed to reduce the overall number of analyses.","average pause time, inflection, intensity, emphasis",NA,NA,18,19,Psychiatric symptom versus neurocognitive correlates of diminished expressivity in schizophrenia and mood disorders.,"Cohen, A. S., Kim, Y., & Najolia, G. M",2013,Cohen et al. (2013),26,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Four measures were computed for this study, including:
+average pause length (Pause  x ) — computed as the average time in
+seconds between utterances (defined as speech bounded by silence in excess
+of 50 ms), number of utterances (UtteranceN) — computed as the
+number of utterances within a speech sample, inflection (F0sd of sd) —
+computed as the standard deviation of the standard deviation values of
+fundamental frequency determined within each individual utterance,
+and emphasis (dBsd of sd) — computed as the standard deviation of standard
+deviation values of intensity determined within each individual utterance","average pause time, number of utterance, inflection (f0 sd), , emphasis (sd of intensity)",NA,NA,19,20,On the boundaries of blunt affect/alogia across severe mental illness: implications for Research Domain Criteria.,"Cohen, A. S., Najolia, G. M., Kim, Y., & Dinzeo, T. J.",2012,Cohen et al. (2012),26,NA,NA,NA,NA,NA,NA,NA,0.2116666666666667,0.11583333333333334,standard deviation of the standard deviation of the F0 (multiplied by a factor of 100)
+NR,"Pause duration, response latency",NA,NA,20,21,Speech fluency and schizophrenic negative signs.,"Alpert, M., Kotsaftis, A., & Pouget, E. R.",1997,Alpert et al. (1997),19,20,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The audio recordings were analyzed with a
+hybrid analog-digital program  VOXCOM, Alpert
+et al., 1986.. In the analog stage, the signal from
+the patient’s track is full-wave rectified and demodulated
+to produce an amplitude waveform of
+speech and silence. In a parallel channel, a frequency
+to voltage converter produces a signal
+that is proportional to the fundamental frequency
+of the patient’s voice. The amplitude signal is
+sampled 100 timesrs. Through software logic, the
+sound pulses of syllables are located, and their
+duration and peak amplitude are noted. At the
+point of maximal amplitude, the fundamental frequency
+for that syllable is noted. The duration of
+all pauses )0.2 s are collected. The duration of a
+run of syllables not interrupted by pauses )0.2 s
+is measured as an utterance. The duration of
+switching pauses from the end of an interviewer’s
+turn to the beginning of the patient’s response is
+saved as the patient’s response latency and, similarly,
+for the interviewer’s latency.
+Duration  pauses and utterances. is log-transformed
+for averaging and reported in s. Inflection
+is measured in semitones around the patient’s
+average fundamental frequency and reported in
+Hertz. Emphasis is measured in decibels referenced
+to a calibration signal that is recorded on
+each tape at the time of the interview  see Alpert
+et al., 1986, 1993.. In other work  Alpert et al.,
+1999. we have found that these transformations
+produce Gaussian distributions. Percent talk tim is calculated as the ratio of the patient’s utterance
+time to the patient’s floor time. Emphasis is
+calculated as the variance of the voice level peaks
+in the amplitude waveform. Inflection is calculated
+as the variance of the fundamental frequency
+measures noted for each syllable. The
+variance is used as a measure of dispersion around
+the mean since variances are additive and, in a
+Gaussian distribution, the variance is not correlated
+with the mean",NA,Non ho capito bene se l'emphasis coincide con l'intensità,NA,21,22,Prosody and lexical accuracy in flat affect schizophrenia.,"Alpert, M., Rosenberg, S. D., Pouget, E. R., & Shaw, R. J.",2000,Alpert et al. (2000),46,20,NA,NA,NA,NA,0.84,0.502,0.5243478260869565,0.2496086956521739,semitones
+"The patients were informed that they were taking a test of
+reading ability. They read from a typed copy, and were not
+permitted to scan the paragraph. The performance was recorded
+on audio tape with the patient, insofar as possible, a constant
+distance from the microphone. The gain of the tape recorder was
+kept constant from patient to patient. The recording was done in a
+sound-buffered recording room. Following the reading, patients
+were given the vocabulary scale of the Wechsler Adult Intelligence
+Scale (WAIS)."" Three patients (two from the nonflat group) were
+dropped from the analysis due to reading deficiencies and scores
+below our vocabulary test criterion (scaled score of less than 8).
+The recorded signal was written out on a light beam oscillo¬
+graph. The experimental nouns were located in the write-out, and
+the log of their momentary peak amplitude measured. Figure 1
+contains comparable sections from the write-out of two nonflats
+(top) and two flat (bottom) patients.",log of voice amplitude,NA,NA,22,23,Imagery mediation of vocal emphasis in flat affect.,"Alpert, M., & Anderson, L. T.",1977,Alpert et al. (1977),30,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A computational linguist used WaveSurfer 1.8.5 to create from each
+speech sample a file of formant values (F0, F1, F2,where F0 is the fundamental
+frequency or the pitch atwhich the vocal folds are vibrating, and
+F1 and F2 are resonance bands indicatingmoment-by-moment shape of
+the oral cavity). These values were sampled every 10 ms, coding F0 as
+0 if vocal folds were not vibrating based on spectral analysis. Using
+a computer program written locally in Microsoft C#, formant data
+were processed to compute summary measures for all 10-millisecond
+samples with nonzero F0. Mean log10(F0), indicating average vocal
+pitch on a logarithmic scale (which is how humans perceive pitch in
+speech intonation), was not expected to correlate with negative symptoms.
+SDN of log10(F0) indicated pitch variability, SDN(F1) variability of
+tongue height or mouth opening, and SDN(F2) variability of tongue front-to-back position","Mean log10 of F0, SD of  log10 of (F0), SD of (F1), ,SD of (F2)",NA,NA,23,24,Phonetic measures of reduced tongue movement correlate with negative symptom severity in hospitalized patients with first-episode schizophrenia-spectrum disorders.,"Covington, M. A., He, C., Brown, C., Naçi, L., McClain, J. T., Fjordbak, B. S., .",2012,Covington et al. (2012),25,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"He was
+instructed to identify and measure all pauses within each speech
+sample. Pauses durings pontaneous speech do not usually last for
+more than 3s.Once the duration of silence is very long,itisques-
+tionable whetheritreallyrepresentsapauseinspeech(6). Very
+briefpauses(<250 ms)wereconsideredtobethegapsinphona-
+tionassociatedwithadjustmentofthepositionofarticulation(6).
+Wethereforeoperationallydefinedpausesastheabsenceofany
+verbaloutputfor250–3000ms.Theyweresubdividedaccordingto
+twodifferentclassificationschemes",pauses,NA,NA,24,25,Frequency and neural correlates of pauses in patients with formal thought disorder,Matsumoto et al.,2013,Matsumoto et al. (2013),6,6,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The voice recordings were analyzed using a microcomputer-based
+system (Voxcom; Alpert, Merewether, Homel, Martz, & Lomask, 1986).
+The software detects voice signals and locates peaks, the acoustic equivalent
+of syllables and for each peak measures the amplitude (loudness),
+the fundamental frequency (pitch), and the duration. Utterances are
+denned as a run of successive peaks above a threshold, without a pause
+of 200 ms. Pauses of greater than 200 ms are also measured. This article
+focuses on the program's output of temporal information. Measures of
+conversational turn taking between the interviewer and subject, including
+switching pauses, are provided by an adaptation of Weimar software
+(Welkowitz, Bond, & Zelano, 1990). Voxcom includes a graphics facility,
+which provides a plot of the amplitude waveform of the rectified,
+demodulated speech signal, essentially the syllable waveform, against
+time (see Figure 1). In addition, a full verbal transcript was made of
+each recording, noting the occurrence of pauses, including filled pauses.
+The ability to compare the transcript with the syllable waveform (as in Figure 1) while simultaneously listening to the recording, facilitates
+the merging of the verbal text with the vocal acoustic variables. In previous
+work we defined internal pauses as silent periods of at least 200
+ms. These criteria were designed to identify just-noticeable gaps in
+sound production in an attempt to identify a psychologically meaningful
+speech marker. For this study, however, we found that even with the
+aid of the typescripts and graphic displays our raters could not reliably
+locate very brief (200 ms) pauses, and we used a 1-s cutoff.",pauses and word rate,NA,NA,25,26,The syntactic role of pauses in the speech of schizophrenic patients with alogia.,"Alpert, M., Clark, A., & Pouget, E. R.",1994,Alpert et al. (1994),17,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+NA,NA,NA,NA,26,27,"A multimethod, multichannel assessment of affective flattening in schizophrenia.","Kring, A. M., Alpert, M., Neale, J. M., & Harvey, P. D. (1994).",1994,Kring et al. (1994),23,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Each subject participated in two experimental sessions. The
+first session involved the recording of the participant’s voice","Words duratiion, Mean pitch, mean intensity",NA,hz,27,28,Emotional self-other voice processing in schizophrenia and its relationship with hallucinations: ERP evidence.,"Pinheiro AP, Rezaii N, Rauber A, Nestor PG, Spencer KM, Niznikiewicz M.",2017,Pinheiro et al. (2017),15,16,136.38333333333333,30.44,148.04333333333332,27.593333333333334,NA,NA,NA,NA,NA
+"Each interview was recorded using separate Uher lavaliere
+microphones, input to a Uher CR210 stereo cassette
+tape recorder Both speech segments for each subject were
+then recorded from cassette tape onto a Revox A700 reelto-
+reel tape recorder Outside noise was filtered from the
+original cassette tapes with a filter attached to the Revox
+tape recorder The reel-to-reel tape of each speech sample
+was played into a Frakjaer-Jensen Trans Pitchmeter coupled
+to a Honeywell 960C Visicorder Oscillograph, which produced
+a duplex Oscillogram record. Output was recorded
+on Honeywell Visicorder recording paper at a rate of 100 mm/s Speech was plotted on the recording paper m the
+shape of wave forms corresponding to fundamentals and
+intensities of pitch and amplitude The absence of speech
+was plotted on the recording paper as straight lines. The parsed speech segments were compared to the speech
+record on the visicorder paper in order to identify the
+locations of silent hesitations in each speech sample Silent
+hesitations longer than 250 ms were measured from the
+length of straight lines on the recording paper Following
+the procedure of Rochester et al (1977), conventional
+hesitations were denned as those pauses that preceded or
+followed the first word of an independent clause Idiosyncratic
+hesitations were defined as hesitations that occurred
+in any other location in the clause The length of all conventional
+hesitations, idiosyncratic hesitations, and total
+speech time was recorded separately for each clause in
+order to obtain measures of pause/speech ratios. Hesitation ratios were computed by dividing
+the total hesitation durations per subject by
+total speech duration per subje","Pause duration, pause pecentage",NA,NA,28,29,Hesitation patterns in the speech of thought-disordered schizophrenic and manic patients.,"Resnick, H. S., & Oltmanns, T. F.",1984,Resnick et al. (1984),10,20,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Subjects’ comments were audiotaped
+and transcribed for analyses. The present study
+examines paralinguistic characteristics of speech of psychiatric patients in terms of temporal
+factors which include initiative time latency (ITL), i.e., period of time elapsing before subject
+speaks about target stimulus, and duration of utterance (DOU), i.e., total time subject
+speaks out of speech time allotted, verbal productivity or word-count (WC), and vocal
+characterizers (VC) which include laughing, muttering, voice-breaking, muffled sound,
+whispering and vocal segregate.","Speech rate, speech percentahe and response latency",NA,NA,29,30,Paralinguistic characteristics of speech in schizophrenics and depressives.,"Mandal, M. K., Srivastava, P., & Singh, S. K.",1990,Mandal et al. (1990),40,60,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The speech sample was digitally audiorecorded,
+transcribed and coded by the first authorwho was
+blind to the participants' identity and health status. Coding
+procedures were run along the following lines. The number
+of uttered words, speech time and words per minute
+(speech fluency) were chosen as general production
+indices",Speech rate,NA,NA,30,31,Specific linguistic and pragmatic deficits in Italian patients with schizophrenia,"Tavano, A., Sponda, S., Fabbro, F., Perlini, C., Rambaldelli, G., Ferro, A., ... & Brambilla, P.",2008,Tavano et al. (2008)_1,37,37,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The speech sample was digitally audiorecorded,
+transcribed and coded by the first authorwho was
+blind to the participants' identity and health status. Coding
+procedures were run along the following lines. The number
+of uttered words, speech time and words per minute
+(speech fluency) were chosen as general production
+indices",Speech rate,NA,NA,30,31,Specific linguistic and pragmatic deficits in Italian patients with schizophrenia,"Tavano, A., Sponda, S., Fabbro, F., Perlini, C., Rambaldelli, G., Ferro, A., ... & Brambilla, P.",2008,Tavano et al. (2008)_2,21,21,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Narrations were
+digitally recorded and subsequently transcribed
+verbatim by two appropriately trained raters (C.P.
+and M.G.) including phonological fillers, pauses
+and false starts.",Speech rate,NA,NA,31,32,"Linguistic production and syntactic
+comprehension in schizophrenia and bipolar
+disorde",Perlini et al .,2012,Perlini et al. (2012),30,30,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The conversations were tape-recorded in stereo, and were
+recorded also on video-tape so that visual interaction could be measured (Rutter, 1976). Verbatim transcripts
+of the conversations were made from the audio recordings and were checked by the author before being
+typed. The number and word length of utterances, and the total number of words spoken by each subject
+were scored from the transcript, as were the number of floor wins, floor changes and occurrences of
+simultaneous speech, the incidences of questions and accompaniment and acknowledgement signals,* and the filled pause and speech disturbance* ratios, for which the scoring system of Mahl (1956) was used. The
+durations of speech, simultaneous speech, and silence were measured by an event-recording system (Rutter,
+1976), in which trained observers listened to the recordings while simultaneously reading the transcripts, and
+scored speech by a push-button arrangement. The remaining measure, speech rate, was calculated by
+dividing the subject’s total number of words by the total duration of his speech over the whole conversation.","Speech rate, speech %,",NA,NA,32,33,Speech patterning in recently admitted and chronic long‐stay schizophrenic patients.,"Rutter, D. R.",1977,Rutter et al. (1977a)_1,12,12,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The conversations were tape-recorded in stereo, and were
+recorded also on video-tape so that visual interaction could be measured (Rutter, 1976). Verbatim transcripts
+of the conversations were made from the audio recordings and were checked by the author before being
+typed. The number and word length of utterances, and the total number of words spoken by each subject
+were scored from the transcript, as were the number of floor wins, floor changes and occurrences of
+simultaneous speech, the incidences of questions and accompaniment and acknowledgement signals,* and the filled pause and speech disturbance* ratios, for which the scoring system of Mahl (1956) was used. The
+durations of speech, simultaneous speech, and silence were measured by an event-recording system (Rutter,
+1976), in which trained observers listened to the recordings while simultaneously reading the transcripts, and
+scored speech by a push-button arrangement. The remaining measure, speech rate, was calculated by
+dividing the subject’s total number of words by the total duration of his speech over the whole conversation.","Speech rate, speech %,",NA,NA,32,33,Speech patterning in recently admitted and chronic long‐stay schizophrenic patients.,"Rutter, D. R.",1977,Rutter et al. (1977a)_2,12,12,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The conversations were tape-recorded in stereo, and were
+recorded also on video-tape so that visual interaction could be measured (Rutter, 1976). Verbatim transcripts
+of the conversations were made from the audio recordings and were checked by the author before being
+typed. The number and word length of utterances, and the total number of words spoken by each subject
+were scored from the transcript, as were the number of floor wins, floor changes and occurrences of
+simultaneous speech, the incidences of questions and accompaniment and acknowledgement signals,* and the filled pause and speech disturbance* ratios, for which the scoring system of Mahl (1956) was used. The
+durations of speech, simultaneous speech, and silence were measured by an event-recording system (Rutter,
+1976), in which trained observers listened to the recordings while simultaneously reading the transcripts, and
+scored speech by a push-button arrangement. The remaining measure, speech rate, was calculated by
+dividing the subject’s total number of words by the total duration of his speech over the whole conversation.","Speech rate, speech %,",NA,NA,32,34,Speech patterning in recently admitted and chronic long‐stay schizophrenic patients.,"Rutter, D. R.",1977,Rutter et al. (1977b),22,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The speech sample was audiotaped, and later transcribed and
+proofread.
+Transcriptions were then examined individually to determine the number
+of positive and negative emotions words uttered during the self-description
+task. Each electronic transcription was first scrutinised using the Linguistic
+Inquiry and Word Count (LIWC; Pennebaker, Francis, & Booth, 2003), a
+computer software program that analyses text files using a specified
+dictionary list and produces a word count output",Speech rate,NA,NA,33,35,Emotion word use in the conversational speech of schizophrenia patients.,"St-Hilaire, A., Cohen, A. S., & Docherty, N. M",2008,St-Hilaire et al. (2008),48,48,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Subjects completed a 20-min recorded interview 
+in which they describe happy, sad and neutral 
+experiences. The interviews were analyzed using 
+VOXCOM(Table2), a computerized method of 
+acoustic analysis described elsewhere in the literature(
+Alpert et al., 1986). Alpert et al.(1989)have 
+applied VOXCOM as a reliable and objective 
+measure of the negative syndrome in schizophrenia, 
+and in particular to provide vocal markers 
+for ratings of flat affect and alogia(Alpert et al., 
+1995a,b). 
+
+Table2 
+VOXCOM: Subscales of acoustic analysis 
+
+Subscale Acoustic item 
+UTTERANCE duration of average vocalization. 
+INFLECTION pitch variance. 
+SPEECH RATE number of peaks/second of speech. 
+PAUSE within and between clause pauses. 
+DYAD turn taking and switching pauses. 
+EMPHASIS variation in syllable loudness.","UTTERANCE duration, INFLECTION, SPEECH RATE, 
+pauses duration,
+EMPHASIS",NA,NA,34,36,The relationship between affect expression and affect recognition in schizophrenia. S,"Shaw, R. J., Dong, M., Lim, K. O., Faustman, W. O., Pouget, E. R., & Alpert, M.",1999,Shaw (1999),30,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The speech samples were
+audiorecorded, transcribed, and rated for frequency of missing
+referents, that is, references that were unclear in meaning because
+the referents were absent.",Speech rate,NA,NA,35,37,"Missing referents, psychotic symptoms, and discriminating the internal from the externalized.","Docherty, N. M.",2012,Docherty et al. (2012),53,23,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A trained researcher, blind to clinical status and not
+present during assessment, transcribed from videotapes
+the mother’s speech utterance-by-utterance during the
+interaction. The content of all transcripts, and the total
+number of utterances and words per utterance calculated,
+were independently verified. Videotapes, with
+their transcripts, were examined for the following
+characteristics: speech complexity (complete repetition,
+continuity of semantic reference); syntax (interrogatives,
+imperatives, declaratives); interaction reciprocity
+(infant focus, negativity); songs and rhymes, and
+deviations in prosody/conte",Speech rate,NA,NA,36,38,Content and style of speech from mothers with schizophrenia towards their infants.,"Wan, M. W., Penketh, V., Salmon, M. P., & Abel, K. M.",2008,Wan et al. (2008),15,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+NR,"Pause duration, pause percentage",NA,NA,37,39,Hesitations as clues to failures in coherence: A study of the thought-disordered speaker.,"Rochester, S. R., Thurston, S., & Rupp, J.",1977,Rochester et al. (1977),40,20,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The acoustic analyses were performed on the Giessen
+Speech Analysis System, a PDP 1 l/35 based system for digital speech analysis.
+All of the patients’ vocalizations during the first 4 min of an interview were
+digitized with a sampling rate of 16,384 Hz, using an anti-aliasing filter cut-off
+frequency of 6 Khz and stored on digital tape as data blocks of 62.5 msec each.
+Silent pauses were eliminated using a threshold detection program (Helfrich,
+1980). By means of the autocorrelation method,f, was extracted for each data
+block and then averaged. Power spectra were calculated for successive data
+blocks using hardware fast Fourier transform (FFT) processing. The mean of
+these spectra yielded the long-term spectrum that was partitioned into 13
+one-third octave bands ranging from 260 Hz (to exclude the region off0 energy
+variation) to 5760 Hz. Since the gain setting during recording was not controlled,
+the energy values of all 15 bands were normalized to allow for comparison
+between patients and interviews.
+To check on the accuracy off” extraction using fixed-length windows of 62.5
+msec, the start of the respective data blocks was shifted by a constant factor in a
+reliability analysis, andf, values for the original and the shifted blocks were
+correlated over the whole speech sample. Correlation coefficients ranged from
+0.96 to 0.98, and it seems safe to assume that thef, of the speech waves was
+extracted with reasonable accuracy.
+The reliability of the long-term spectra was tested by means of an odd-even
+method. For each patient and tinterview two separate long-term spectra were
+computed; one based only on the odd data blocks, the other only on the even.
+The energy difference between corresponding one-third octave bands proved to
+be very small (less than 7% deviation).",f0 mean,NA,NA,38,40,Vocal indicators of psychiatric treatment effects in depressives and schizophrenics.,"Tolkmitt, F., Helfrich, H., Standke, R., & Scherer, K. R. .",1982,Tolkmitt (1982),11,NA,NA,NA,211.167,NA,NA,NA,NA,NA,NA
+"Las muestras fueron transcritas usando CLAN6, que es un
+programa computarizado de análisis de lenguaje acorde con
+las convenciones de transcripción en formato CHAT (códigos
+de trascripción para codificar todas las variaciones que
+se hacen sobre las estructuras prototítipas del lenguaje como,
+por ejemplo, repeticiones, reformulaciones, errores discursivos,
+pausas, etc.); permite hacer análisis de diversidad lexical,
+análisis morfológico, sintáctico y de cohesión y coherencia
+del discurso, así como marcar las alteraciones en la fluidez
+y codificar los errores en el habla desde el nivel segmental
+o fonológico hasta el nivel macroestructural del discurso. La
+finalidad de uso de estos dos programas es establecer una
+comparación entre la prosodia y el análisis de discurso de cada uno de los sujetos, y analizar tanto los aspectos suprasegmentales
+del habla como la forma y el contenido del discurso.
+Para este trabajo se analizan las siguientes variables
+(tabla 2):
+• Frecuencia fundamental: expresada en herzios, fisiológicamente
+está determinada por el número de vibraciones por
+segundo de los pliegues vocales; corresponde a lo que psicoacústicamente
+llamamos tono.
+• Intensidad: expresada en decibelios, fisiológicamente determinada
+por la presión de aire exhalado por los pulmones;
+corresponde a lo que psicoacústicamente llamamos volumen.
+• Velocidad: velocidad del habla determinada por el número
+de sílabas por segundo.","F0 mean, intensity mean",NA,NA,39,41,"Spontaneous speech prosody and discourse analysis in schizophrenia and Fronto Temporal Dementia (FTD) patients. colombiana de psiquiatria, 44(1), 13-19.","Martínez, A., Felizzola Donado, C. A., & Matallana Eslava, D. L.",2015,Martinez e al. (2015),6,NA,NA,NA,171.37166666666667,57.66021797276406,NA,NA,NA,NA,NA
+"A series of audiorecordings of participants' speech was obtained
+using a Tascam DR-08 recorder set to the following specifications: (1)
+ENCODING: PCM 16-bit 44.1 kHz monaural, (2) LOW CUT: Low 40 Hz,
+(3) REC EQ: Off, (4) microphone folded to a closed position, (5) builtin
+stand open, and (6) device placed on a table in front of the participant
+with the microphone about 12 in from him or her.We used three elicitation
+tasks for spontaneous speech and two for reading aloud, as
+shown in Table 2. Fromthese five types of audiorecorded speech samples, we obtained a
+number of phonetic parameters. The sound files for each of the five tasks
+for each participant started and ended with the participant's voice, excluding the assessor's instructions. The assessorwould sometimes provide
+a prompt (e.g., “Can you say anythingmore about that?”) up to two
+times if a participant stopped short of the two-minute mark for the first
+three speech elicitation activities. Despite the prompts, some participants'
+speaking fell short of two minutes. Recordings longer than two minutes
+were not reduced. The recordings of twelve tasks (from ten subjects)
+were excluded because they were acoustically compromised and it was
+not possible to extract reliable information from them.
+A linguist used the computer programVoiceSauce (Shue, 2010) to extract
+the phonetic linguistic parameter of pitch (F0). Pitch is only present
+when the vocal folds are vibrating, as they are for the articulation of
+vowels (and some consonants). The computer program WaveSurfer
+1.8.8 (Medina and Solorio, 2006) was used to extract intensity readings.
+The pitch (F0) and intensity readings were taken every 10 milliseconds,
+and using those instances in which voicing (vocal fold vibration) was
+present, the following were calculated for each speaker, for each task.
+First, standard deviation of F0 (SD of F0) is variability in pitch (a larger
+number meaning a greater range of pitch during voicing). Second, variability
+in intensity/loudness was computed as an average of the average
+SDs of intensity changes over a 20-second window. For the third and
+fourth measures, the computer program Prosogram (Mertens, 2004) via
+Praat (Boersma and Weenink, 2015) was used to automatically delineate
+the vowels in the audiorecordings. Themidpoint of the vowel resonances
+(F1 and F2)were extracted for every delineated vowel using a Praat script
+(Lennes, 2003), run on audiorecordings of female speakers with the setting
+of five formants expected in the first 5500 Hz, and on the
+audiorecordings of male speakers with the setting of five formants expected
+in the first 5000 Hz. The important resonances for vowels (F1
+and F2) correspond to the shape of various parts of the vocal tract during
+their articulation. Specifically, F1 indicates jaw/mouth opening and thus
+tongue height (tongue height goes along with jaw opening; as the jaw
+drops, the tongue lowers), and F2 corresponds to tongue front/back position
+and/or lip rounding. For each speaker, for each task, we calculated SD
+of F1 and SD of F2. In order to identify datapoints that were outliers, all
+raw measurements were standardized for each speaker across all tasks,
+and datapoints that had a z-score N3.29 or b−3.29 were discarded. Outliers
+were generally of two kinds: spurious values from the automated
+measurements, and data points from the short interjections from the experimenter
+that were present in some tasks.
+For F1 and F2, measurements were converted to Bark, a perceptual
+scale that is essentially linear at lower levels and logarithmic at higher
+levels, reflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels reflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels to get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites.toreflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels to get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites.reflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels to get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites.reflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels to get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites. get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites.",F0 sd,NA,NA,40,42,The aprosody of schizophrenia: Computationally derived acoustic phonetic underpinnings of monotone speech.,"Compton, M. T., Lunden, A., Cleary, S. D., Pauselli, L., Alolayan, Y., Halpern, B., ... & Bernardini, F. (2018).",2018,Compton et al. (2018)_1,94,101,NA,NA,NA,NA,38.692565055762074,24.799628252788107,37.35296296296296,24.157037037037036,NA
+"reflecting how human perception of Hz works (i.e., a greater increase
+in Hz is needed at higher levels to get the same perceptual increase).
+For intensity/loudness, we wrote a script that only used
+datapoints that were from definitely voiced segments (“definitely”
+found by not only an F0 (voicing) measurement for that datapoint but
+also for the ones before and after it). Specifically, we computed a moving
+average over a particular length of time, since neither very short
+nor very long variations are of interest (i.e., we were not interested in
+the difference between syllables in the same word, nor loudness
+changes over a period of minutes,which are probably due to the speaker
+getting farther away fromthemicrophone or getting tired). Because this
+was not an a priori variable andwas computed only after the conclusion
+of data collection, we could not be sure that the microphone/recorder
+was placed in the exact same position for participants recruited in
+Washington, D.C. (where several offices with different seating arrangements
+were used for assessments); variation in recorder placement
+could affect intensity/loudness. For this reason, only participants recruited
+from New York were included in the computation of this variable,
+as we were confident that the recorder was consistently placed
+in the same position at those sites.",F0 sd,NA,NA,40,42,The aprosody of schizophrenia: Computationally derived acoustic phonetic underpinnings of monotone speech.,"Compton, M. T., Lunden, A., Cleary, S. D., Pauselli, L., Alolayan, Y., Halpern, B., ... & Bernardini, F. (2018).",2018,Compton et al. (2018)_2,62,68,NA,NA,NA,NA,38.62062780269058,26.795067264573994,35.09441860465116,22.19581395348837,NA
+"The data analysis included, on the one hand, the
+objective indices that are conventionally used in
+the literature (Cozolino, 1983) and, on the other,
+the assessments made by four independent judges
+concerning the quality of the syntax and the
+coherence of the texts. The objective indices were:
+the length of the verbal productions (number of
+words), the total duration of the productions (in
+seconds), the verbal output (number of words per
+second) and the frequency of silent pauses, verbalised
+pauses (hesitations), immediate lexical repetitions
+(words that were repeated or rewritten
+instantaneously) and deferred lexical repetitions",Speech rate,NA,NA,41,43,"Written but not oral verbal production is preserved in young schizophrenic patients. Psychiatry research, 111(2), 137-145.","Salomé, F., Boyer, P., & Fayol, M.",2002,Salomè et al. (2002),10,10,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"The voices of the interviewers and the patients were
+recorded on separate channels of a digital audio tape
+deck, each using a condenser microphone worn on the
+head. Interviews were open-ended and conversational,
+and were designed to capture the characteristic dyadic interaction
+of our subjects. We selected 3-minute samples
+from near the beginning of longer interviews, starting
+with a question from the interviewer and continuing in
+a reasonably interactive discussion. Three of the samples were edited on a personal computer (PC), using a sound
+board and commercially available software (Digital
+Audio Labs). There were three versions for each patient
+sample; one version was created with increased pause
+duration, another with decreased pause duration, and
+there was the unmodified version (that had also been
+passed through the soundboard as a control for any
+audible effects that might result from the editing process).
+Interviewer samples were not modified. The software
+graphically presents the speech and silence
+waveform with minute detail, and makes it possible to
+hear the playback while viewing it on the PC monitor",Pause duration,NA,NA,42,44,Cues to the assessment of affects and moods: Speech fluency and pausing. tin.,"Alpert, M., Pouget, E. R., Sison, C., Yahia, M., & Allan, E.",1995,Alpert et al. (1995),6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Specifically, for each speaking task we used an energy based
+Utterance-Silence segmentation from which we extracted utterance and gap
+statistics (e.g. mean utterance duration). We then used the YIN pitch
+detection algorithm (de Cheveign & Kawahara, 2002) to detect pitched
+segments (among uttered segments) and to further segment the Uttered
+segments into Voiced-Unvoiced segments, followed by the extraction of
+power and pitch related statistics (e.g. Inflection, Emphasis). We then used
+pitched segments to refer to the finer resolution of ‘cycle to cycle’ variation
+and extract micro-scale statistics (e.g. Jitter, Shimmer","Utterance duration, speech percentage, pause durarion, emphasis",NA,NA,43,45,Evidence for depression and schizophrenia in speech prosody. In Third ISCA Workshop on Experimental Linguistics.,"Kliper, R., Vaizman, Y., Weinshall, D., & Portuguese, S.",2010,Kliper et al. (2010),22,20,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"recordings were made by a headset without sound
+isolation or calibration. To prepare the recordings for acoustic analysis, the audio
+tapes were digitized at a 44:1 kHz sampling rate. Acoustic analysis was conducted
+using MATLAB [18] (details are given in Section 2.1). Average length of a clinical
+interview was: schizophrenia - 57m 13s, depression - 30m 31s, healthy - 48m 46s.
+Silence was automatically removed at the beginning and end of each recording,
+while the remaining data was normalized to have 0 mean and variance 1, thus
+avoiding e ects caused by the constellation of the headset. To enable e cient
+handling of the data each interview was divided into 2 minutes segments, which
+were subsequently analyzed independently. All results from a single person's 2
+minutes segments were later used together for classi cation. See paper for remainig information","recordings were made by a headset without sound
+isolation or calibration. To prepare the recordings for acoustic analysis, the audio
+tapes were digitized at a 44:1 kHz sampling rate. Acoustic analysis was conducted
+using MATLAB [18] (details are given in Section 2.1). Average length of a clinical
+interview was: schizophrenia - 57m 13s, depression - 30m 31s, healthy - 48m 46s.
+Silence was automatically removed at the beginning and end of each recording,
+while the remaining data was normalized to have 0 mean and variance 1, thus
+avoiding e ects caused by the constellation of the headset. To enable e cient
+handling of the data each interview was divided into 2 minutes segments, which
+were subsequently analyzed independently. All results from a single person's 2
+minutes segments were later used together for classi cation. See paper for remainig information","Utterance duration, speech percentage, pause duration, pitch variability",NA,44,46,Prosodic Analysis of Speech and the Underlying Mental State.,"Kliper, R., Portuguese, S., & Weinshall, D.",2015,Kliper et al. (2015),22,20,NA,NA,NA,NA,0.0992,0.0024,0.0924,0.0044,sd of pitch for sentence
+"Subjects’ verbal responses were taped on a
+second Marantz PMD 340 recorder using a
+Shure SM12A microphone mounted on an
+adjustable boom attached to a headset that was
+positioned just to the side of the subjects’ air
+stream. Although detailed acoustic measures
+have been developed to quantify affective
+prosody,50 51 these methods are not necessary
+when analyzing affective prosody in English.
+English speakers impart affect in their speech
+predominantly through changes of pitch over
+time (intonation).13 51 52 The most salient
+acoustic correlate of pitch is fundamental
+frequency (F0), which is equal to the number of
+vocal fold vibrations per unit of time.52 By
+measuring the change of F0 across a series of
+affective utterances, affective prosody can be
+quantified sufficiently so as to easily distinguish
+between normal and abnormal performances.
+7 13
+The subjects’ voice recordings were analyzed
+using a PM Pitch Analyzer (Voice Identification
+Inc) which extracts F0 in Hz from the
+speech signal and displays the data on a
+cathode ray tube. Simultaneously, via a program
+written using Quick Basic and Macro
+Assembler languages (Micosoft, Inc), the F0
+data generated by the pitch analyzer was transferred
+to a personal computer (Gateway, Inc)
+at a sampling rate of 10 ms. By using programmable
+cursors on the pitch analyzer, stray data
+points caused by microphone artifacts, voice
+break-ups, and other sampling errors were
+removed. The computer program then calculated
+a coefficient of variation (CV) for each
+utterance. After all the data were completely
+entered, a mean CV% was calculated for the 12
+sentences (F0-CV%) comprising each affective
+set and for 10 seconds of spontaneous
+speech.7",Pitch F0 sd,NA,NA,45,47,Affective-prosodic deficits in schizophrenia: profiles of patients with brain damage and comparison with relation to schizophrenic symptoms.,"Ross, E. D., Orbelo, D. M., Cartwright, J., Hansel, S., Burgard, M., Testa, J. A., & Buck, R.",2001,Ross et al. (2001)_1,45,19,NA,NA,NA,NA,17.621,3.273,11.338,4.051,NA
+"Subjects’ verbal responses were taped on a
+second Marantz PMD 340 recorder using a
+Shure SM12A microphone mounted on an
+adjustable boom attached to a headset that was
+positioned just to the side of the subjects’ air
+stream. Although detailed acoustic measures
+have been developed to quantify affective
+prosody,50 51 these methods are not necessary
+when analyzing affective prosody in English.
+English speakers impart affect in their speech
+predominantly through changes of pitch over
+time (intonation).13 51 52 The most salient
+acoustic correlate of pitch is fundamental
+frequency (F0), which is equal to the number of
+vocal fold vibrations per unit of time.52 By
+measuring the change of F0 across a series of
+affective utterances, affective prosody can be
+quantified sufficiently so as to easily distinguish
+between normal and abnormal performances.
+7 13
+The subjects’ voice recordings were analyzed
+using a PM Pitch Analyzer (Voice Identification
+Inc) which extracts F0 in Hz from the
+speech signal and displays the data on a
+cathode ray tube. Simultaneously, via a program
+written using Quick Basic and Macro
+Assembler languages (Micosoft, Inc), the F0
+data generated by the pitch analyzer was transferred
+to a personal computer (Gateway, Inc)
+at a sampling rate of 10 ms. By using programmable
+cursors on the pitch analyzer, stray data
+points caused by microphone artifacts, voice
+break-ups, and other sampling errors were
+removed. The computer program then calculated
+a coefficient of variation (CV) for each
+utterance. After all the data were completely
+entered, a mean CV% was calculated for the 12
+sentences (F0-CV%) comprising each affective
+set and for 10 seconds of spontaneous
+speech.7",Pitch F0 sd,NA,NA,45,47,Affective-prosodic deficits in schizophrenia: profiles of patients with brain damage and comparison with relation to schizophrenic symptoms.,"Ross, E. D., Orbelo, D. M., Cartwright, J., Hansel, S., Burgard, M., Testa, J. A., & Buck, R.",2001,Ross et al. (2001)_2,45,19,NA,NA,NA,NA,24.847,2.589,20.269,4.834,NA
+"Recordings were digitally spliced and were analyzed using the
+Computerized Analysis of Natural Speech [10]. The following variables were selected for this study,
+based on findings from a principal components analysis and validity study conducted on large patient samples (n = 309; [14]) and nonpsychiatric adult (N = 1,350; [10]) samples: pause mean – mean time between utterances (in milliseconds), utterance number – total number of utterances (defined as speech bounded by pauses ≥150 ms), Intonation– standard deviation of the fundamental frequency averaged
+across utterances, Pitch perturbation – absolute value of change in the fundamental frequency in
+successive frames, Emphasis– SD of intensity averaged across utterances, and Intensity perturbation –
+absolute value of change in intensity in successive frames. Pause mean and utterance number tap into
+vocal production whereas intonation, pitch perturbation, emphasis, and intensity perturbation tap vocal variability. These measures have been used extensively in both the clinical and nonclinical acoustic
+analysis  literature.","Intonation, Pitch perturbation , Emphasis, Pause mean and utterance number",NA,NA,46,48,Blunted vocal affect and expression is not associated with schizophrenia: A computerized acoustic analysis of speech under ambiguous conditions,"Meaux, L. T., Mitchell, K. R., & Cohen, A. S.",2018,Meaux et al. (2018)_1,36,25,NA,NA,NA,NA,1.51,0.69,1.67,0.87,"standard deviation of the fundamental frequency averaged
+across utterances"
+"Recordings were digitally spliced and were analyzed using the
+Computerized Analysis of Natural Speech [10]. The following variables were selected for this study,
+based on findings from a principal components analysis and validity study conducted on large patient samples (n = 309; [14]) and nonpsychiatric adult (N = 1,350; [10]) samples: pause mean – mean time between utterances (in milliseconds), utterance number – total number of utterances (defined as speech bounded by pauses ≥150 ms), Intonation– standard deviation of the fundamental frequency averaged
+across utterances, Pitch perturbation – absolute value of change in the fundamental frequency in
+successive frames, Emphasis– SD of intensity averaged across utterances, and Intensity perturbation –
+absolute value of change in intensity in successive frames. Pause mean and utterance number tap into
+vocal production whereas intonation, pitch perturbation, emphasis, and intensity perturbation tap vocal
+variability. These measures have been used extensively in both the clinical and nonclinical acoustic
+analysis  iterature.","Intonation, Pitch perturbation , Emphasis, Pause mean and utterance number",NA,NA,46,48,Blunted vocal affect and expression is not associated with schizophrenia: A computerized acoustic analysis of speech under ambiguous conditions,"Meaux, L. T., Mitchell, K. R., & Cohen, A. S.",2018,Meaux et al. (2018)_2,36,25,NA,NA,NA,NA,1.5,0.579,1.68,0.94,"standard deviation of the fundamental frequency averaged
+across utterances"

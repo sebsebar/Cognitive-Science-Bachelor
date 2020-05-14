@@ -1,0 +1,45 @@
+---
+title: 'Portfolio 4: Syllogisms'
+author: "Sebastian Scott Engen"
+date: "11/09/2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/portfolios/Portfolio 4")
+library(tidyverse) ; library(stringr) ; library(stringi) ; library(pastecs)
+
+```
+
+```{r}
+#Now we'll import all of our colelcted datafiles from the reading experiment (30 in total)
+#First we look trough our Working Directory and make list of filenames
+filenames <- list.files(pattern = "logfile*") 
+data = data.frame() #create a new empty df for this second part of the portfolio
+for (i in filenames) {	#the we loop over the list of files
+  file = read.csv(i)	#we import the current file
+  data = rbind(data, file[,]) 
+  #and append the 162th line of the current file to our new df 't_test_data'using the rbind function
+}
+```
+´´´
+´´´
+```{r}
+Postive_Data <- filter(data, Accuracy == "1")
+People_Means <- Postive_Data %>% 
+   group_by(Full.Name, Condition) %>%
+  summarise(Mean_Reaction = mean(Reaction.Time))
+People_Means$Condition <- factor(People_Means$Condition)
+
+```
+´´´
+´´´
+```{r}
+Reaction_by_Condition <- aov(Mean_Reaction ~ Condition, data = People_Means)
+summary(Reaction_by_Condition)
+Reaction_by_Condition_lm <- lm(Mean_Reaction ~ Condition, data = People_Means)
+summary(Reaction_by_Condition_lm)
+```
+

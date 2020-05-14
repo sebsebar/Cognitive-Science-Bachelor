@@ -1,0 +1,131 @@
+---
+title: "A2_code"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# packages
+library(pacman)
+p_load(tidyverse, ggunchained, rstan, rethinking)
+
+
+# STAN SETUP
+options(mc.cores = parallel::detectCores())
+
+M <- file.path(Sys.getenv("HOME"), ".R", ifelse(.Platform$OS.type == "windows", "Makevars.win", "Makevars"))
+file.edit(M)
+
+rstan_options(auto_write = TRUE)
+```
+
+
+# QUESTION 1
+Creating data
+```{r}
+ric <- data.frame(ID = rep("Riccardo", 6),
+                      answer = c(0, 0, 0, 1, 1, 1))
+
+kri <- data.frame(ID = rep("Kristian", 4),
+                  answer = c(0, 0, 1, 1))
+
+jos <- data.frame(ID = rep("Josh", 198),
+                  answer = c(rep(1, 160), rep(0, 38)))
+
+mik <- data.frame(ID = rep("Mikkel", 132),
+                  answer = c(rep(1, 66), rep(0, 66)))
+
+q1_data <- full_join(ric, kri) %>%
+  full_join(jos) %>%
+  full_join(mik)
+```
+
+Answering Q1
+```{r}
+# grid-approximate by hand
+ric_grid <- seq(from = 0 , to = 1 , length.out = 20)
+ric_flat_prior <- rep( 1 , 20 )
+ric_likelihood <- dbinom(3 , size = 6, prob = ric_grid)
+ric_unstd.posterior <- ric_likelihood * ric_flat_prior
+ric_posterior <- ric_unstd.posterior / sum(ric_unstd.posterior)
+
+# plot
+plot(ric_grid, ric_posterior, type="b",
+     xlab="YT (you're terrible) index", 
+     ylab="posterior probability" )
+```
+
+```{r}
+# quadratic approximation
+ric_QA <- map(
+  alist(
+    w ~ dbinom(6,p) , # binomial likelihood
+    p ~ dunif(0,1) # uniform prior
+    ) ,
+  data=list(w=3) )
+
+# display summary of quadratic approximation
+precis(ric_QA)
+```
+
+
+# QUESTION 2
+estimate for all teachers
+```{r}
+ga <- function(correct, wrong, name, length = 200) {
+  
+  grid <- seq(from = 0, to = 1, length.out = length)
+  likelihood <- dbinom(correct, size = wrong, prob = grid)
+  prior <- rep(1, length)
+  ustd_post <- likelihood * prior
+  
+  posterior <- ustd_post / sum(ustd_post)
+  
+  par(mfrow=c(2,1))
+  plot(grid, posterior, type = "b",
+       xlab="index", 
+       ylab="posterior probability",
+       main = paste0(name, ": an ignorant? "))
+  
+  plot(grid, prior, type = "b",
+       xlab="index", 
+       ylab="prior probability")
+}
+
+ga(3, 6, "Riccardo")
+ga(2, 4, "Kristian")
+ga(160, 198, "Josh")
+ga(66, 132, "Mikkel")
+
+```
+
+
+# QUESTION 3
+```{r}
+
+```
+
+
+# QUESTION 4
+```{r}
+
+```
+
+
+# QUESTION 5
+```{r}
+
+```
+
+
+# QUESTION 6
+```{r}
+
+```
+
+
+# QUESTION 7 - bonus
+```{r}
+
+```

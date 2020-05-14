@@ -1,0 +1,211 @@
+---
+title: "Assignment2_Part2_victor"
+author: "Victor Møller"
+date: "25 feb 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# packages
+library(pacman)
+p_load(tidyverse, ggunchained, rstan, rethinking, cowplot)
+
+# STAN SETUP
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+
+```
+
+old & new data
+
+```{r cars}
+#old data
+y1_data <- read.csv("q1_data.csv") #reading year 1 data. 
+
+#new data
+ric2 <- data.frame(ID = rep("Riccardo", 10),
+                      answer = c(rep(1, 9), rep(0, 1)))
+
+kri2 <- data.frame(ID = rep("Kristian", 12),
+                  answer = c(rep(1, 8), rep(1, 4)))
+
+jos2 <- data.frame(ID = rep("Josh", 172),
+                  answer = c(rep(1, 148), rep(0, 24)))
+
+
+mik2 <- data.frame(ID = rep("Mikkel", 65),
+                  answer = c(rep(1, 34), rep(0, 31)))
+
+y2_data <- full_join(ric2, kri2) %>%
+  full_join(jos2) %>%
+  full_join(mik2)
+
+# Create and join data.frames (Do we need to join here? Could we not just make a joint data.frame from the start? :)
+
+rm("jos2", "mik2","kri2","ric2") # Cleans the environment
+
+```
+
+predicting?
+
+```{r pressure, echo=FALSE}
+posterior_gen = function(cog, grid, prior, sample_size = 1e4, give_sample = F, sum_posterior = T, dens_sample = T, data) {
+  likelihood = dbinom(x = sum(data$ID == cog & data$answer == 1), size = sum(data$ID == cog), prob = grid)
+  prior = prior
+  unstd.post = likelihood * prior
+  post = unstd.post / sum(unstd.post) # Normalizing
+  samples = sample(grid, prob = post, size = sample_size , replace = T)
+  return(samples)
+
+  if (give_sample == T) {
+    plot(samples, xlab = str_c(sample_size, " sized sample from ", cog, "'s posterior distribution")) }
+  if (dens_sample == T) {
+    dens(samples, xlab = str_c("density plot of ", sample_size, " samples from ", cog, "'s posterior distribution"), show.HPDI = .93)
+  }
+  if (sum_posterior == T) {
+    str_c(" The posterior probability that ", cog, " knows more than chance is ", sum(samples > 0.5) / sample_size)
+  }
+}
+
+
+cogs = c("Riccardo", "Mikkel", "Josh", "Kristian")
+app_prior <- dnorm(p_grid, mean=0.8, sd=0.2)
+p_grid = seq(from = 0, to = 1, length.out = 10000)
+
+old_posteriors = lapply(cogs, posterior_gen, 
+                        grid = p_grid, prior = app_prior, data = y1_data,
+                        give_sample = F)
+
+plot(app_prior, xlab = "Prior", ylab = "Probability")
+
+HPDI(unlist(old_posteriors[3]), prob = 0.93)
+HPDI(unlist(old_posteriors[4]), prob = 0.93)
+```
+S
+
+# comparing parameters to and posteriors
+## fun
+```{r}
+tidy_posterior_plot <- function(correct, n, 
+                                pri_correct, pri_n,
+                                sample_size = 1e4) {
+  cog <- tibble(correct = correct, 
+                n = n,
+                pri_correct = pri_correct,
+                pri_n = pri_n,
+                p_grid = seq(from = 0, to = 1, length.out = sample_size)) %>%
+    # old model
+    mutate(old_prior = dnorm(p_grid, mean=0.8, sd=0.2),
+           old_likelihood = dbinom(pri_correct, pri_n, p_grid),
+           old_posterior = old_likelihood * old_prior,
+           old_posterior = old_posterior / sum(old_posterior)) %>%
+    # new model
+    mutate(prior = old_posterior,
+           likelihood = dbinom(correct, n, p_grid)) %>% 
+    mutate(posterior  = likelihood * prior) %>% 
+    mutate(posterior  = posterior / sum(posterior))
+  
+  return(cog %>% 
+    select(-correct, -n, -pri_correct, -pri_n, -old_likelihood, -old_posterior,
+           -old_prior) %>% 
+    gather(key, value, -p_grid) %>% 
+    mutate(key = factor(key, levels = 
+                          c("prior", "likelihood", "posterior"))) %>%
+    ggplot(aes(x = p_grid, ymin = 0, ymax = value, fill = key)) +
+      geom_ribbon() +
+      #scale_y_continuous(NULL, breaks = NULL) +
+      theme_janco_point() +
+      theme(legend.position = "none") +
+      facet_wrap(~key, scales = "free"))
+  
+}
+```
+
+## running
+```{r}
+tidy_posterior_plot(9, 10, 3, 6) +
+  labs(title = "Riccardo",  subtitle = "aproximation from new data", 
+       y = "probability mass")
+
+tidy_posterior_plot(34, 65, 66, 132) +
+  labs(title = "Mikkel", subtitle = "aproximation from new data",
+       y = "probability mass")
+
+tidy_posterior_plot(148, 172, 160, 198) +
+  labs(title = "Josh", subtitle = "aproximation from new data",
+       y = "probability mass")
+
+tidy_posterior_plot(8, 12, 2, 4) +
+  labs(title = "Kristian", subtitle = "aproximation from new data",
+       y = "probability mass")
+
+```
+
+
+
+# Comparing last years / new years posterior
+```{r}
+two_posteriors <- function(correct, n, 
+                           pri_correct, pri_n,
+                           sample_size = 1e4,
+                           cog_name) {
+  
+  cog <- tibble(correct = correct, 
+                n = n,
+                pri_correct = pri_correct,
+                pri_n = pri_n,
+                p_grid = seq(from = 0, to = 1, length.out = sample_size)) %>%
+    
+    # old model
+    mutate(old_prior = dnorm(p_grid, mean=0.8, sd=0.2),
+           old_likelihood = dbinom(pri_correct, pri_n, p_grid),
+           old_posterior = old_likelihood * old_prior,
+           old_posterior = old_posterior / sum(old_posterior),
+           old_samples = sample(p_grid, 
+                                prob = old_posterior, 
+                                size = sample_size , replace = T)) %>%
+    
+    # new model
+    mutate(prior = old_posterior,
+           likelihood = dbinom(correct, n, p_grid)) %>% 
+    mutate(posterior  = likelihood * prior) %>% 
+    mutate(posterior  = posterior / sum(posterior),
+           new_samples = sample(p_grid, 
+                                prob = posterior, 
+                                size = sample_size , replace = T)) 
+  
+  return(cog %>%
+    select(old_PPD = old_samples, new_PPD = new_samples, p_grid) %>%
+    gather(key, value, -p_grid) %>% 
+    mutate(key = factor(key, levels = 
+                          c("old_PPD", "new_PPD"))) %>%
+    ggplot(aes(x = value, fill = key)) +
+      geom_density(alpha = 0.5) +
+      theme_janco_point() +
+      coord_cartesian(xlim = 0:1) +
+      labs(title = paste0(cog_name),
+           subtitle = "comparing predictive posterior distributions",
+           y = "density")
+    )
+  }
+```
+
+
+```{r}
+p2_ric <- two_posteriors(9, 10, 3, 6, cog_name = "Riccardo")
+
+p2_mik <- two_posteriors(34, 65, 66, 132, cog_name = "Mikkel")
+
+p2_jos <- two_posteriors(148, 172, 160, 198, cog_name = "Josh")
+
+p2_kri <- two_posteriors(8, 12, 2, 4, cog_name = "Kristian")
+
+p2_ric
+p2_mik
+p2_jos
+p2_kri
+```
+

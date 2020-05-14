@@ -1,0 +1,51 @@
+---
+title: 'Portfolio 3: The Reading Experiment'
+author: "your name"
+date: "10/31/2017"
+output: word_document
+---
+
+## Portfolio 3: The Reading Experiment 
+
+In this portfolio assignment, you will be conducting analyses of data from your reading experiment. The portfolio has two overall sections asking different questions: 1) A correlational section investigating what aspects of words predict reading time, and 2) an experimental section asking about the way that contextual expectancies affect our reading time by contrasting two conditions.
+
+For each analyses, remember to make qualified choices of statistical test based on assumption testing.
+Futhermore, for each analysis, provide a written report following APA conventions and a plot that illustrates the result  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# import your libraries and data in this code block
+
+```
+
+# 1) What properties of words predict word-by-word reading time?
+
+Conduct minimum three correlational analyses where you investigate the relation between reading time and relevant predictors such as e.g. word length, frequencies, etc. 
+ 
+```{r}
+# code for your correlational study 1 
+```
+
+Report goes here: 
+
+```{r}
+# code for your correlational study 2 
+```
+
+Report goes here:
+
+```{r}
+# code for your correlational study 3 
+```
+
+Report goes here:
+
+# 2) How does contextual expectations affect reading time?
+
+Conduct a contrastive analysis of the two conditions in your reading experiment. Single out reading time of the words that differ between the two versions of your text/story and compare the means using a t-test. 
+
+```{r}
+# code for your t-test study  
+```
+
+Report goes here:

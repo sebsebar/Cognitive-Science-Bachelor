@@ -1,0 +1,342 @@
+---
+title: "Analysis"
+author: "Signe Kløve Kjær"
+date: "20 nov 2017"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("~/Dropbox/Uni/Experimental methods/Portfolio assignments/Portfolio 4")
+
+library(VIF)
+library(car)
+library(compute.es)
+library(ggplot2)
+library(multcomp)
+library(pastecs)
+library(WRS2)
+library(stringi)
+library(stringr)
+library(tidyverse)
+```
+
+Procedure of one-way ANNOVA: 
+
+Enter data 
+
+Explore data (graph data, stats for different groups, assumptions)
+
+Compute the ANOVA
+
+Compute post hoc tests
+
+
+
+Enter data: 
+
+```{r}
+#Create a list with filenames starting with 'log' from the working directory
+filenames <- list.files(pattern = "log*")
+
+#Create an empty data frame
+data = data.frame() # create empty dataframe to put "things" from loop into it
+
+#Create a loop going through the files 
+
+for (i in filenames){ # tells r to loop all the filenames (the list we created with the filenames)
+  file = read.csv(i) # we need to import the data into r, give us access to the dataframes, file is the current data we are working on --> everytime we go through the loop it changes
+  data = rbind(data, file[,]) # the comma tells r to take row number 162 and all the columns
+}
+```
+
+```{r}
+#filter out the incorrect answers 
+data_correct <- filter(data, Accuracy == 1)
+```
+
+
+
+```{r}
+# calculate the mean for each participant 
+data_mean <- data_correct %>% 
+  group_by(Full.Name, Condition) %>% 
+  summarise(mean_reaction = mean(Reaction.Time))
+
+```
+
+
+Explore data: 
+
+
+Line graph with error bars showing bootstrapped confidence intervals for the data
+```{r}
+
+# use factor() to tell R to treat the Condition column as a categorical factor
+data_mean$Condition <- factor(data_mean$Condition)
+
+line_graph <- ggplot(data_mean, aes(Condition, mean_reaction)) # define plot
+
+line_graph + stat_summary(fun.y = mean, geom = "point") + # create point for mean in each group
+  stat_summary(fun.y = mean, geom = "line", aes(group = 1), color = "Blue", linetype = "dashed") + # create lines between each mean, set group = 1 because we are joining summary points instead of individual points
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + # create confidence intervals based on bootstrapping, since we don't assume normality 
+  labs(x = "Conditions", y = "Mean reaction time of judging a syllogism") 
+```
+
+```{r}
+# use by() to get descriptive statistics for each condition
+by(data_mean$mean_reaction, data_mean$Condition, stat.desc)
+```
+
+The means and standard deviation corresponds to the ones showed in the graph. 
+
+The CI.mean.0.95 value can be added or subtracted from the mean to create the confidence intervals for each condition. 
+
+
+Check assumptions: 
+
+Independence: Datapoint are independent --> come from different participants
+- Each datapoint in the three conditions are the mean reaction time for different participants to solve a syllogism task. XXX
+- This is why we would normally use a mxied model instead of anova, which is why we calculate the mean for each participant
+
+
+Linearity: Non-linearity in the residuals? 
+- Residuals are the difference between the actual datapoint and the model, in this case the mean of the condition from which the datapoint came. 
+
+data = data.frame(res = models$residuals, fit=model$fitted.values)
+
+ggplot(data, aes(fit, res)) + geom_point() + geom_abline(slope = 0, intercept = 0)
+
+
+- Make a residual plot 
+- plot(fitted(model1), residuals(model1))
+- If we observe non-linearity --> transformation? 
+
+
+Absense of collinearity: Correlated predictors? --> maybe the predictors capture the same variance --> try to include only orthogonal predictors (capture different parts of the variance)
+- How is it our situation?? 
+
+- Make correlation analysis for predictors
+
+Normality of residuals: The residuals need to be normally distributed (difference between datapoint and model), not the dependent variable (reaction time)
+- Check: qqnorm(residuals(model1)) (after we have run the model and assigned it to a variable from lm())
+- If the residuals are not normally distributed --> do robust anova with bootstrapping 
+Not very important, but use qqplots or histograms
+
+Homosceasticity: Unequal variance --> (1) variance is different at different ends of your predictor or (2) there is different amount of variance in our conditions. 
+
+(1)
+- Residual plot: plot(fitted(model1), residuals(model1))
+- Make a residual plot for each condition, to see if the variance is different at different ends of the predictor. 
+
+
+(2)
+- We check different amount of variance in our conditions by doing a levene's test. It works by doing a one way ANNOVA on the deviation scores --> the absolute difference between each score(the mean of each participant) and the mean of the group from which it came. 
+
+- Levene's test test the null hypothesis that the variances in different groups are equal. If the test is significant, p< .05 --> the null hypothesis is incorrect --> the variances are significantly different --> the assumption of homogeneity of variances has been violated. 
+
+
+Absense og influential datapoints
+
+- dfbeta(model)
+
+```{r}
+# residual plot, to check linearity in the residuals + variance is different at different ends of the predictor
+
+model <- aov(mean_reaction~Condition, data = data_mean) 
+
+data = data.frame(res = residuals(model), fit = fitted(model))
+
+ggplot(data, aes(fit, res)) + geom_point() + geom_abline(slope = 0, intercept = 0)
+
+plot(fitted(model), residuals(model))
+
+summary(model)
+
+```
+
+We observe non-linearity --> transform! 
+
+#transform data
+```{r}
+
+#LOG TRANSFORM
+data_mean <- mutate(data_mean, mean_log = log(mean_reaction))
+
+qqnorm(data_mean$mean_log)
+
+modelx <- aov(mean_log~Condition, data = data_mean) 
+
+plot(fitted(modelx), residuals(modelx))
+
+
+#RECIPROCAL
+data_mean <- mutate(data_mean, mean_reci = 1/(mean_reaction))
+
+qqnorm(data_mean$mean_reci)
+
+modelr <- aov(mean_reci~Condition, data = data_mean)
+
+plot(fitted(modelr), residuals(modelr))
+
+
+#SQUAREROOT
+data_mean <- mutate(data_mean, mean_sqr = sqrt(mean_reaction))
+
+qqnorm(data_mean$mean_sqr)
+
+models <- aov(mean_sqr~Condition, data = data_mean)
+
+plot(fitted(models), residuals(models))
+
+
+
+```
+
+
+Collinearity
+```{r}
+
+
+
+#vif(modelx)
+#Im not sure how we check this. The function vif should do it but I cant make it work
+#i think it is because condition is a factor 
+
+#The _VIF_ is a measure of _multicollinearity_, which occurs between two or more predictors in a regression model. In other words, you cannot have collinearity in a single predictor. 
+
+```
+
+
+Linearity in residual: 
+
+Variance in different ends of the predictors: 
+There are more variance 
+
+
+```{r}
+# normality of residuals
+ qqnorm(residuals(model))
+
+#normality of log
+qqnorm(residuals(modelx))
+
+shapiro.test(residuals(modelx))
+
+#normality of reciprocal
+qqnorm(residuals(modelr))
+
+shapiro.test(residuals(modelr))
+
+#normality of squareroot
+qqnorm(residuals(models))
+
+shapiro.test(residuals(models))
+```
+
+
+
+```{r}
+# levene's test 
+leveneTest(data_mean$mean_reaction, data_mean$Condition, center = median)
+
+leveneTest(data_mean$mean_log, data_mean$Condition, center = median)
+
+leveneTest(data_mean$mean_reci, data_mean$Condition, center = median) #WE USE THIS 
+
+leveneTest(data_mean$mean_sqr, data_mean$Condition, center = median)
+
+```
+
+
+APA: 
+For the reaction times on the syllogism task, the variances were similar for the participants in the three conditions (abstract, meaningfull, meaningless), F(df1,df2) = value. 
+
+The value in the Pr(>F) column are > 0.05, which indicates that the variances between the different conditions are not significantly different. 
+This means that the assumption of homogeneity of variance is tenable. 
+
+
+Compute the ANOVA: 
+
+Null hypothesis: The means from the three conditions are the same, the grand mean ( the model are uninformed about different groups)
+
+Experimental hypothesis: The means between the abstract condition, the meaningless and the meaningfull condition differ, which would indicate that there is a difference in how fast we are at judging syllogisms in terms of whether the syllogisms have meaningfull content or not. The abstract condition is our baseline condition. 
+
+The ANOVA tells us whether there is a difference between means or not. It does not tell us which of the three condition means are different and in which direction they differ. For that we need post hoc test. 
+
+So the ANOVA tells us which model is the best, the null model(grand mean) or the condition means (we fit a mean for each condition --> the alternative model). 
+
+
+```{r}
+# annova model 
+#without transformation
+model1 <- aov(mean_reaction~Condition, data = data_mean)
+
+summary(model1)
+
+#log
+model_l <- aov(mean_log~Condition, data = data_mean)
+
+summary(model_l)
+
+
+#reci
+model_r <- aov(mean_reci~Condition, data = data_mean)
+
+summary(model_r)   #WE USE THIS 
+
+#sqrt
+model_s <- aov(mean_sqr~Condition, data = data_mean)
+
+summary(model_s)
+
+```
+
+
+```{r}
+# lm() model
+model2 <- lm(mean_reaction~Condition, data = data_mean)
+
+summary(model2)
+
+#log
+model_l2 <- lm(mean_log~Condition, data = data_mean)
+
+summary(model_l2)
+
+
+#reci
+model_r2 <- lm(mean_reci~Condition, data = data_mean)
+
+summary(model_r2)  #WE USE THIS 
+
+#sqrt
+model_s2 <- lm(mean_sqr~Condition, data = data_mean)
+
+summary(model_s2)
+
+```
+
+
+Compute post hoc test 
+
+
+```{r}
+# post hoc t-tests 
+#normal
+pairwise.t.test(data_mean$mean_reaction, data_mean$Condition, p.adjust.method = "bonferroni")
+
+#log transformed
+pairwise.t.test(data_mean$mean_log, data_mean$Condition, p.adjust.method = "bonferroni")
+
+#reci transformed
+pairwise.t.test(data_mean$mean_reci, data_mean$Condition, p.adjust.method = "bonferroni")
+#WE USE THIS 
+
+#sqr transformed 
+pairwise.t.test(data_mean$mean_sqr, data_mean$Condition, p.adjust.method = "bonferroni")
+
+
+```
+

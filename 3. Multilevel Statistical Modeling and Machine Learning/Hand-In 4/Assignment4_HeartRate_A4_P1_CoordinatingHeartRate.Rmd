@@ -1,0 +1,1107 @@
+---
+title: "Assignment 4 - Coordinating Heart Rate"
+author: "Riccardo Fusaroli"
+date: "November 6, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) ; library(stringr) ; library(stringi) ; library(pastecs) ; library(WRS2) ; library(sjPlot) ; library(nlme) ; library(plyr) ; library(lmerTest) ; library(pacman) 
+p_load(tidyverse, stringr, Metrics, caret, lme4, simr, stats,lmerTest, stats, FinCal, PerformanceAnalytics, nonlinearTseries,purrr, grid.arrange)
+p_load(tidyverse, crqa, readr, groupdata2, gridExtra, stringr, lmerTest, MuMIn)
+p_load(deSolve)
+p_load(crqa)
+```
+## Analysing Heart Rate and Respiration data
+
+The goal of this assignment is to first familiarize you with heart rate, and respiration data and their preprocessing. The second part explores how to analyze interpersonal coordination of these signals.
+
+These are the questions you need to be able to answer at the end of the assignment (aka that you need to submit as part of the portfolio)
+
+1) How do you preprocess heart rate and respiration data? Describe the process. If any data needs to be excluded, list the excluded data and motivate the exclusion.
+
+2) Do you observe interpersonal coordination in heart rate and respiration? Describe your control baseline, the method used to quantify coordination, and the statistical models used to infer whether coordination was higher than in the baseline. Report the results of the models.
+
+3) Do you observe differences in coordination between conditions? Report the models and results.
+
+4) Is respiration coordination a likely driver of heart rate coordination? Describe how you would test for it. Bonus points if you actually run the tests and report methods and results.
+
+N.B. Because of the timing, we're starting this exercise before collecting the data.
+Instead, you will develop your script this week on data from two years ago (Study1) and last year (Study2).
+#############################################################################################
+When you hand in the assignment for feedback, you can use the old data. But when you hand in the final version for the exam, you need to adapt your script to use the data we collect next week in the lab.
+############################################################################################
+(For the old data): Note that synchronouns and turn-taking are the same task across both studies, but the third condition is different: two years ago it was self-paced joint reading; last year it was tv-series conversation.
+
+NB: For this exercise, you will need to do something very similiar to what you've done before spread over several weeks. Ie parse data, look at the plots, decide on data cleaning, build a model, and finally evaluate and interpret the results of the models. Going back and copying the approach from previous exercises will likely be a great help.
+
+## Step by step suggestions to solve the assignment
+
+### Exploring physiological signals
+
+- Choose one pair (one pair, three conditions) & Load
+# We pick the first Study from the old data (It is notes that the Self-paced category is only used for a few of the studies, since it was only done by the first year)
+- Load the logs
+```{r}
+t1 <- read.csv("Study1_G1_T1_Synchronous.csv")
+t2 <- read.csv("Study1_G1_T2_TurnTaking.csv")
+t3 <- read.csv("Study1_G1_T3_SelfPaced.csv")
+```
+
+
+- Produce a plot of the participants' respiration signal and a different one of the participants' HR signal (for inspecting whether the data is usable)
+```{r setup, include=FALSE}
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+```
+
+```{r}
+library(ggplot2)
+library(pacman)
+library(dplyr)
+#NB: We need remove artifacts, downsample, scale
+
+#CLEANING THE DATA IN 3 STEPS
+#Step 1: Downsampling (slide 43)
+p_load(groupdata2)
+
+#downsampling T1
+T1 = t1 %>%
+  group(n = 100, method = 'greedy') %>%
+  dplyr::summarise(
+    time = mean(time,na.rm=T),
+    HR1 = mean(HR1,na.rm=T),
+    HR2 = mean(HR2,na.rm=T),
+    Resp1 = mean(Resp1,na.rm=T),
+    Resp2 = mean(Resp2,na.rm=T))
+#T2
+T2 = t2 %>%
+  group(n = 100, method = 'greedy') %>%
+  dplyr::summarise(
+    time = mean(time,na.rm=T),
+    HR1 = mean(HR1,na.rm=T),
+    HR2 = mean(HR2,na.rm=T),
+    Resp1 = mean(Resp1,na.rm=T),
+    Resp2 = mean(Resp2,na.rm=T))
+#T3
+T3 = t3 %>%
+  group(n = 100, method = 'greedy') %>%
+  dplyr::summarise(
+    time = mean(time,na.rm=T),
+    HR1 = mean(HR1,na.rm=T),
+    HR2 = mean(HR2,na.rm=T),
+    Resp1 = mean(Resp1,na.rm=T),
+    Resp2 = mean(Resp2,na.rm=T))
+
+#Step 2: OUTLIER-REMOVAL
+#defining function to remove outliers
+removeOuts <- function(ts,threshold){
+  ts[ts > (mean(ts,na.rm=T) +  
+             (threshold*sd(ts,na.rm=T))) | 
+       ts < (mean(ts,na.rm=T) - 
+             (threshold*sd(ts,na.rm=T)))] = mean(ts,na.rm=T)  
+  return(ts)}
+threshold=2.5
+###############
+#Set threshold
+###############
+
+
+#using function on the three trials
+#T1
+T1$HR1=removeOuts(T1$HR1,threshold)
+T1$HR2=removeOuts(T1$HR2,threshold)
+T1$Resp1=removeOuts(T1$Resp1,threshold)
+T1$Resp2=removeOuts(T1$Resp2,threshold)
+#T2
+T2$HR1=removeOuts(T2$HR1,threshold)
+T2$HR2=removeOuts(T2$HR2,threshold)
+T2$Resp1=removeOuts(T2$Resp1,threshold)
+T2$Resp2=removeOuts(T2$Resp2,threshold)
+#T3
+T3$HR1=removeOuts(T3$HR1,threshold)
+T3$HR2=removeOuts(T3$HR2,threshold)
+T3$Resp1=removeOuts(T3$Resp1,threshold)
+T3$Resp2=removeOuts(T3$Resp2,threshold)
+
+
+#Step 3: SCALING THE SIGNALS
+#adding new column with scaled respiration
+#T1
+T1$Resp1S=scale(T1$Resp1) 
+T1$Resp2S=scale(T1$Resp2)
+T1$HR1S=scale(T1$HR1)
+T1$HR2S=scale(T1$HR2)
+#T2
+T2$Resp1S=scale(T2$Resp1) 
+T2$Resp2S=scale(T2$Resp2)
+T2$HR1S=scale(T2$HR1)
+T2$HR2S=scale(T2$HR2)
+#T3
+T3$Resp1S=scale(T3$Resp1) 
+T3$Resp2S=scale(T3$Resp2)
+T3$HR1S=scale(T3$HR1)
+T3$HR2S=scale(T3$HR2)
+
+
+#Now we can actually proceed
+#HEARTRATE
+# participant 1
+HR1_T1 <- ggplot(T1, aes(x=time, y=HR1S))+geom_line()
+HR1_T2 <- ggplot(T2, aes(x=time, y=HR1S))+geom_line()
+HR1_T3 <- ggplot(T3, aes(x=time, y=HR1S))+geom_line()
+
+#participant 2
+HR2_T1 <- ggplot(T1, aes(x=time, y=HR2S))+geom_line()
+HR2_T2 <- ggplot(T2, aes(x=time, y=HR2S))+geom_line()
+HR2_T3 <- ggplot(T3, aes(x=time, y=HR2S))+geom_line()
+
+
+#RESPIRATION
+#participant 1
+Resp1_T1 <- ggplot(T1, aes(x=time, y=Resp1S))+geom_line()
+Resp1_T2 <- ggplot(T2, aes(x=time, y=Resp1S))+geom_line() #some of this data does not look like respiration...
+   ggplot(t2, aes(x=time, y=Resp1))+geom_line() #comparing the raw version: flawed data even before
+Resp1_T3 <- ggplot(T3, aes(x=time, y=Resp1S))+geom_line()
+#participant 2
+Resp2_T1 <- ggplot(T1, aes(x=time, y=Resp2S))+geom_line()
+Resp2_T2 <- ggplot(T2, aes(x=time, y=Resp2S))+geom_line()
+Resp2_T3 <- ggplot(T3, aes(x=time, y=Resp2S))+geom_line()
+
+```
+
+  N.B: remember the slides: artifacts, downsampling, scaling.
+  N.B. The gridExtra::grid.arrange() function allows you to display the plots side by side. E.g. grid.arrange(plot1, plot2, plot3, ncol=3)
+
+- Can you eye-ball which condition if any displays more physiological coordination?
+```{r}
+#eyeballing material, heartrate
+#three trials. QUESTION: Any difference in conditions between trials?
+HR_T1 <- multiplot(HR1_T1, HR2_T1) 
+HR_T2 <- multiplot(HR1_T2, HR2_T2)
+HR_T3 <- multiplot(HR1_T3, HR2_T3)
+
+
+#eyeballing material, respiration
+Resp_T1 <- multiplot(Resp1_T1, Resp2_T1)
+Resp_T2 <- multiplot(Resp1_T2, Resp2_T2)
+Resp_T3 <- multiplot(Resp1_T3, Resp2_T3)
+```
+
+- Run crqa on heart rate and respiration data (find parameters, run crqa)
+```{r}
+"""Using CRQA, the following four parameters were derived: the percentage of recurrence rate (%RR), the percentage of determinism (%DET), the longest diagonal line (Lmax), and the percentage of laminarity (%LAM). The %RR quantifies regularity by calculating the probability of occurrence of similar states in two systems. Greater %RR corresponds to greater correlation in a time series. The %DET is the percentage of recurrence points that form diagonal structures to all recurrence points in the CRP. If both systems have similar phase space behavior, the number of longer diagonals increases and the number of shorter diagonals decreases, resulting a higher%DET. Therefore, %DET reflects the deterministic or predictable structure between two dynamical systems. The Lmax represents the longest diagonal line found in the CRP. It is related to the exponential divergence of the phase space trajectory and correlation entropy. The %LAM quantifies the density of recurrent points that form vertical line structures in the recurrence map. It demarcates time intervals during which the system’s state is relatively constant compared to intervals of sudden bursts of activit"""
+
+p_load(deSolve)
+p_load(crqa)
+
+
+#FINDING PARAMETERS (slide 77)
+par = list(lgM =  50, steps = seq(1, 6, 1),  radiusspan = 100,  radiussample = 40, normalize = 0,  rescale = 0,  mindiagline = 2,  minvertline = 2,  tw = 0,  whiteline = FALSE,  recpt = FALSE, fnnpercent = 10,  typeami = "mindip") #defining list
+
+ans_T1_HR = optimizeParam(T1$HR1S, T1$HR2S, par, min.rec = 3.5, max.rec = 4.5)
+#radius=0.28, 
+#emddim=20
+#delay=0 suggesting direct live synchronization
+
+ans_T1_Resp = optimizeParam(T1$Resp1S, T1$Resp2S, par, min.rec = 3.5, max.rec = 4.5)
+#radius=0.35
+#emddim=2
+#delay=19
+
+###This is where we stop for today
+
+
+#creating time series for crqa
+T1_HR1 <- ts(T1$HR1S)
+T1_HR2 <- ts(T1$HR2S)
+
+crqa(T1_HR1, T1_HR2, delay=1, radius=0.28)
+```
+
+- Produce a plot of the participants' respiration signal and a different one of the participants' HR signal (for inspecting whether the data is usable)
+```{r}
+
+```
+  N.B: remember the slides: artifacts, downsampling, scaling.
+  N.B. The gridExtra::grid.arrange() function allows you to display the plots side by side. E.g. grid.arrange(plot1, plot2, plot3, ncol=3)
+- Can you eye-ball which condition if any displays more physiological coordination?
+
+- Run crqa on heart rate and respiration data (find parameters, run crqa)
+- Does this tell you more than just eyeballing the plots?
+
+### Systematically pre-process the data
+- Loop through all the files (either with a loop or with a function), check which files should be excluded, if any, and save the pre-processed time-series. Tip: plot and visually inspect the data to figure out which should be excluded.
+```{r}
+#####
+#BIG FAT FUNCTION
+
+p_load(tidyverse, crqa, readr, groupdata2, gridExtra, stringr, lmerTest, MuMIn)
+#####
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data")
+
+#dependency for the preproz function
+removeOuts <- function(ts,threshold){
+  ts[ts > (mean(ts,na.rm=T) + (threshold*sd(ts,na.rm=T))) |
+       ts < (mean(ts,na.rm=T) - (threshold*sd(ts,na.rm=T)))] =  mean(ts,na.rm=T)   
+  return(ts)}
+threshold=2.5 
+
+#function to downsample, rescale, remove outliers, print plots for HR and respiration as well as finding optimal parameters for crqa. Outputs a dataframe and prints plots
+preproz = function(filename, graphs = T, noOutliers = T){ #requires the removeOuts function and a set threshold
+  folder = "Ass-4-CleanData2018/"
+  df = read_csv(paste(folder, filename, sep=""))
+   
+  #Downsample
+  df = df %>%    
+  group(n= 100, method= 'greedy') %>%    
+  dplyr::summarise(TimeMs= mean(TimeMs,na.rm=T), HR1 = mean(HR1,na.rm=T), HR2 = mean(HR2,na.rm=T), Resp1 =  mean(Resp1,na.rm=T), Resp2 = mean(Resp2,na.rm=T)) 
+   
+  if(noOutliers == T) {
+  #Removing outliers
+  df$HR1=removeOuts(df$HR1,threshold)
+  df$HR2=removeOuts(df$HR2, threshold)
+  df$Resp1=removeOuts(df$Resp1, threshold)
+  df$Resp2=removeOuts(df$Resp2, threshold)
+  }
+  
+  #Rescale
+  df$Resp1S=scale(df$Resp1)  
+  df$Resp2S=scale(df$Resp2)  
+  df$HR1S=scale(df$HR1) 
+  df$HR2S=scale(df$HR2)
+  
+  #Adding study identification colomns
+  df$study = 3
+  df$group = str_extract(filename, "G(\\d+)")
+  df$trial = str_extract(filename, "T(\\d)")
+  df$condition = gsub('.{4}$', '', strsplit(filename, "_")[[1]][4])
+  df$filename = filename
+  
+  ###Calculating optimal parameters
+  #setting parameters
+  #We won't normaliza or rescale, since We've done that already - Mindiagline is set to 2, and seems fine Since it's a faily low starting point
+  par = list(lgM =  50, steps = seq(1, 6, 1),  radiusspan = 100,  radiussample = 40, normalize = 0,  rescale = 0,  mindiagline = 2,  
+minvertline = 2,  tw = 0,  whiteline = FALSE,  recpt = FALSE,  fnnpercent = 10,  typeami = "mindip")
+
+  #getting the optimal parameters and saving to opt_paramHR/Resp. Using try so it doesn't crash if there is an error
+  
+  #First getting parameters for HR data
+  opt_paramHR = try(optimizeParam(df$HR1S, df$HR2S, par, min.rec = 2, max.rec = 8))
+  #if the optimize function succeeded, save the results to the dataframe - if not, put NAs 
+  if (length(opt_paramHR) > 2) {
+    #need to unlist the parameters otherwise they can't be used for later calculations (no idea why it makes them a list in the first place)
+   df$optRadiusHR = unlist(opt_paramHR[1])
+   df$optEmbdimHR = unlist(opt_paramHR[2])
+   df$optDelayHR = unlist(opt_paramHR[3])
+   } else {
+   df$optRadiusHR = NA
+   df$optEmbdimHR = NA
+   df$optDelayHR = NA
+   }
+
+  #Now for respiration data
+  opt_paramResp = try(optimizeParam(df$Resp1S, df$Resp2S, par, min.rec = 2, max.rec = 8))
+  #if the optimize function succeeded, save the results to the dataframe - if not, put NAs 
+  if (length(opt_paramResp) > 2) {
+    df$optRadiusResp = unlist(opt_paramResp[1])
+    df$optEmbdimResp = unlist(opt_paramResp[2])
+    df$optDelayResp = unlist(opt_paramResp[3])
+    } else {
+    df$optRadiusResp = NA
+    df$optEmbdimResp = NA
+    df$optDelayResp = NA
+    }
+
+  #creating new csv file with the new columns
+  name = str_extract(filename, '.*(?=\\.csv)') #removing .csv from filename
+  name = paste(name, "PROCESSED.csv", sep = '_')
+  #creating new folder to store the files in 
+  dir.create("preprocessed", showWarnings = FALSE) #stops warnings if folder already exists
+  #writing file to the new folder
+  write.csv(df, file.path("preprocessed", name), row.names=FALSE)
+
+  if(graphs == T) {
+  #Adding plots
+  HR = ggplot(df, aes(TimeMs, HR1S)) + 
+    geom_line() + 
+    geom_line(aes(TimeMs, HR2S, color = "red")) + 
+    ggtitle(filename) +
+    theme(legend.position = "none")
+  Resp = ggplot(df, aes(TimeMs, Resp1S)) + 
+    geom_line() + 
+    geom_line(aes(TimeMs, Resp2S, color = "red")) + 
+    ggtitle(filename) +
+    theme(legend.position = "none")
+
+  #printing the arranged plots to console
+  grid.arrange(HR, Resp)
+  #grid.arrange can't be saved but will only print. Using arrangeGrob to save to variable and then to disk
+  plots = arrangeGrob(HR, Resp) #generates g
+  
+  #creating a unique name for each plot based on the filename
+  plotname = str_extract(filename, '.*(?=\\.csv)') #removing .csv from filename
+  plotname = paste(plotname, "PLOT.png", sep = '_')
+  #creating new folder to store the files in 
+  dir.create("plots", showWarnings = FALSE) #stops warnings if folder already exists
+  #writing file to the new folder
+  #ggsave(plotname, plot = plots, path = "plots/")
+  ggsave(file=plotname, plots, path = "plots/")
+  }
+  
+  #Return df
+  return(df)
+
+}
+
+files = list.files(path = "Ass-4-CleanData2018/", pattern = "*.csv")
+processed = lapply(files, preproz)
+processed = bind_rows(processed)
+
+#Creating new column with optimal overall CRQA values
+#Median over mean - More robust to outliers
+processed = processed %>% 
+  mutate(opt_dimHR = median(processed$optEmbdimHR, na.rm = T), 
+         opt_delayHR = median(processed$optDelayHR, na.rm = T), 
+         opt_radHR = median(processed$optRadiusHR, na.rm = T),
+         opt_dimResp = median(processed$optEmbdimResp, na.rm = T), 
+         opt_delayResp = median(processed$optDelayResp, na.rm = T), 
+         opt_radResp = median(processed$optRadiusResp, na.rm = T))
+
+write.csv(processed, file = "processedData.csv")
+
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data")
+data <- read.csv("processedData.csv")
+
+#If working with old data
+#remove files 1,2, 4, 5 as well as all selfpaced conditions (Either Flatliners or a wierd condition used in the year before)
+#If Working on the new data
+# Remove G9_T2_Synchroneus which has flatlined Respiration
+```
+
+- Run crqa on all the pre-processed time-series and save the output (don't forget to add columns with study, group, condition and trial). Tip: remember to first assess optimal parameters (dimensions, delay, radius) across all timeseries. Tip: it will often fail, just take whatever parameters you get, select optimal across timeseries parameters and run crqa on all timeseries with those. Tip: double check the rr. When I ran the loop, I got very low rr, so I adjusted the radius until the average of rr across all pairs was approx. 4%.
+```{r}
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/Pros")
+data <- read.csv("processedData.csv")
+#Load
+p_load(deSolve)
+p_load(crqa)
+
+"""Using CRQA, the following four parameters were derived: the percentage of recurrence rate (%RR), the percentage of determinism (%DET), the longest diagonal line (Lmax), and the percentage of laminarity (%LAM). The %RR quantifies regularity by calculating the probability of occurrence of similar states in two systems. Greater %RR corresponds to greater correlation in a time series. The %DET is the percentage of recurrence points that form diagonal structures to all recurrence points in the CRP. If both systems have similar phase space behavior, the number of longer diagonals increases and the number of shorter diagonals decreases, resulting a higher%DET. Therefore, %DET reflects the deterministic or predictable structure between two dynamical systems. The Lmax represents the longest diagonal line found in the CRP. It is related to the exponential divergence of the phase space trajectory and correlation entropy. The %LAM quantifies the density of recurrent points that form vertical line structures in the recurrence map. It demarcates time intervals during which the system’s state is relatively constant compared to intervals of sudden bursts of activit"""
+
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/")
+CRQA_final = data.frame()
+
+PP_final = list.files('preprocessed', pattern = "*.csv", full.names = TRUE)
+
+for (i in PP_final){ #PP_final
+  #------ Read file ------
+  file = read.csv(i, header = TRUE)
+  
+  #------ Extract info from filename ------
+  Study = 3
+  Group = str_extract(i, "G(\\d+)")
+  Trial = str_extract(i, "T(\\d)")
+  Condition = gsub('.{4}$', '', strsplit(i, "_")[[1]][4])
+  
+  #------ CRQA ------
+  #Heart rate
+  a_h = try(crqa(file$HR1S, file$HR2S,delay = 4 , embed= 20, radius= 2.328673,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_h) > 2) {
+    RR_h = a_h[1][[1]]
+    DET_h = a_h[2][[1]] 
+    NRLINE_h = a_h[3][[1]]
+    maxL_h = a_h[4][[1]]
+    L_h = a_h[5][[1]]
+    ENTR_h = a_h[6][[1]]
+    rENTR_h = a_h[7][[1]]
+    LAM_h = a_h[8][[1]]
+    TT_h = a_h[9][[1]]
+  } else {
+    RR_h = NA
+    DET_h = NA
+    NRLINE_h = NA
+    maxL_h = NA
+    L_h = NA
+    ENTR_h = NA
+    rENTR_h = NA
+    LAM_h = NA
+    TT_h = NA
+  }
+  #Respiration rate
+  a_r = try(crqa(file$Resp1S, file$Resp2S,delay = 31, embed= 2, radius= 0.3845085,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_r) > 2) {
+    RR_r = a_r[1][[1]]
+    DET_r = a_r[2][[1]]
+    NRLINE_r = a_r[3][[1]]
+    maxL_r = a_r[4][[1]]
+    L_r = a_r[5][[1]]
+    ENTR_r = a_r[6][[1]]
+    rENTR_r = a_r[7][[1]]
+    LAM_r = a_r[8][[1]]
+    TT_r = a_r[9][[1]]
+  } else {
+    RR_r = NA
+    DET_r = NA
+    NRLINE_r = NA
+    maxL_r = NA
+    L_r = NA
+    ENTR_r = NA
+    rENTR_r = NA
+    LAM_r = NA
+    TT_r = NA
+  }
+  
+
+  #------ Make dataframe ------  
+  #Make relevant information into a one row data frame
+  df_result = data.frame(Study, Group, Trial,
+                             Condition, 
+   RR_h, DET_h, NRLINE_h, maxL_h, L_h, ENTR_h, rENTR_h, LAM_h, TT_h, 
+    RR_r, DET_r, NRLINE_r, maxL_r, L_r, ENTR_r, rENTR_r, LAM_r, TT_r
+                             )
+  
+  #Bind the above row to the actual data set
+  CRQA_final = rbind(CRQA_final, df_result)
+  
+}
+
+#Slides page 23
+#Delays
+#Where do we get away from the redundency -> At 10 U can minimise
+#But at 30 U can minimise even more
+#Delay much shorter for HR than Resp
+lol <- subset(data, filename == "Study3_G10_T1_Synchronous.csv")
+nonlinearTseries::mutualInformation(lol$HR1, lol$HR2)
+#If the system is complex (We have lot of dimensions - Heartrate with 20) -> Respirations has 2, which makes sense for two people.
+#Uncovering respiration in two dimensions, for both people in the pairs, and see how much the overlap in statespaces (Remember Lorenz butterfly)
+#We want to get the underlying attractors/influencers for the heart -> Shape, bloodvolume etc. -> optimize parameters comes up with 20 -> wooooow, my heart is so cooomplex
+
+#Researchers have come up with the heuristic of trying to find 4% black dots (we get certain amount of variability that won't change a lot if going a precentage up or down on multiple other researchprojects)
+# We expect to find 4% on all data -> One set of optimized parameters for all the data
+#This means that the plots in the same study is not having equal amounts of “black dots”
+
+```
+
+
+### Creating controls: shuffled controls
+ - loop through all pairs and conditions
+ - shuffle the timeseries (take a timeseries and rearrange its values in a random order). Tip check the sample() function
+ - run crqa and save the output. NB. which delay, embed, radius parameters should you use?
+ - statistically compare the crqa indexes in real and shuffled pairs
+```{r}
+install.packages("tsbox")
+library(tsbox)
+
+#------ Shuffling ------
+#function creating the shuffle files
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/")
+
+pp_file_list = list.files('preprocessed', pattern = "*.csv", full.names = TRUE)
+#Loop creating the shuffle files
+for (i in pp_file_list){
+  #read file
+  file = read.csv(i, header = TRUE)
+  
+  #Shuffle variables
+  HR1_x = sample(file$HR1S)
+  file$HR1S = HR1_x
+  
+  HR2_x = sample(file$HR2S)
+  file$HR2S = HR2_x
+  
+  Resp1_x = sample(file$Resp1S)
+  file$Resp1S = Resp1_x
+  
+  Resp2_x = sample(file$Resp2S)
+  file$Resp2S = Resp2_x
+  
+  #Write csv
+  #Remove PP_data/ from name and add Shuffle_data
+  name = str_extract(i, '.*(?=\\.csv)') #removing .csv from filename
+  name = paste(name,"Shuffled.csv", sep = '_')
+  write.csv(file, name, row.names = FALSE)
+}
+
+#### Put the New files in a new folder
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/preprocessed/")
+dir.create("shuffeled", showWarnings = FALSE) #stops warnings if folder already exists
+warnings()
+
+
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/preprocessed/")
+CRQA_final_shuffle = data.frame()
+
+PP_final = list.files('shuffeled', pattern = "*.csv", full.names = TRUE)
+
+for (i in PP_final){ #PP_final
+  #------ Read file ------
+  file = read.csv(i, header = TRUE)
+  
+  #------ Extract info from filename ------
+  Study = 3
+  Group = str_extract(i, "G(\\d+)")
+  Trial = str_extract(i, "T(\\d)")
+  Condition = gsub('.{4}$', '', strsplit(i, "_")[[1]][4])
+  
+  #------ CRQA ------
+  #Heart rate
+  a_h = try(crqa(file$HR1S, file$HR2S,delay = 4 , embed= 20, radius= 2.328673,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_h) > 2) {
+    RR_h = a_h[1][[1]]
+    DET_h = a_h[2][[1]] 
+    NRLINE_h = a_h[3][[1]]
+    maxL_h = a_h[4][[1]]
+    L_h = a_h[5][[1]]
+    ENTR_h = a_h[6][[1]]
+    rENTR_h = a_h[7][[1]]
+    LAM_h = a_h[8][[1]]
+    TT_h = a_h[9][[1]]
+  } else {
+    RR_h = NA
+    DET_h = NA
+    NRLINE_h = NA
+    maxL_h = NA
+    L_h = NA
+    ENTR_h = NA
+    rENTR_h = NA
+    LAM_h = NA
+    TT_h = NA
+  }
+  #Respiration rate
+  a_r = try(crqa(file$Resp1S, file$Resp2S,delay = 31, embed= 2, radius= 0.3845085,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_r) > 2) {
+    RR_r = a_r[1][[1]]
+    DET_r = a_r[2][[1]]
+    NRLINE_r = a_r[3][[1]]
+    maxL_r = a_r[4][[1]]
+    L_r = a_r[5][[1]]
+    ENTR_r = a_r[6][[1]]
+    rENTR_r = a_r[7][[1]]
+    LAM_r = a_r[8][[1]]
+    TT_r = a_r[9][[1]]
+  } else {
+    RR_r = NA
+    DET_r = NA
+    NRLINE_r = NA
+    maxL_r = NA
+    L_r = NA
+    ENTR_r = NA
+    rENTR_r = NA
+    LAM_r = NA
+    TT_r = NA
+  }
+  
+
+  #------ Make dataframe ------  
+  #Make relevant information into a one row data frame
+  df_result = data.frame(Study, Group, Trial,
+                             Condition, 
+   RR_h, DET_h, NRLINE_h, maxL_h, L_h, ENTR_h, rENTR_h, LAM_h, TT_h, 
+    RR_r, DET_r, NRLINE_r, maxL_r, L_r, ENTR_r, rENTR_r, LAM_r, TT_r
+                             )
+  
+  #Bind the above row to the actual data set
+  CRQA_final_shuffle = rbind(CRQA_final_shuffle, df_result)
+}
+
+# In CRQA on our shuffeled data we still find some correlation between the pairs in the respiration - but we get very unsignificant correlation in the heart rate data due to the muuuuuuuuch higher variability
+#Some actually look down on Shuffeling, since U actually break/mess with the delayseries
+```
+ 
+### TRICKY! Creating controls: surrogate pair controls
+ - Per each real pair, identify at least one surrogate pair (matching one of the participants, with somebody doing the same task, but in a different pair). Tip: Malte will share a method to do this on screen.
+ - Run crqa on all the surrogate pairs and save the output. NB. which delay, embed, radius parameters should you use?
+ - Test whether crqa shows a difference between real and surrogate pairs
+```{r}
+#Surrogates
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Ass-4-CleanData2018/Pros")
+data <- read.csv("processedData.csv")
+
+
+One <- select(data, HR1S, Resp1S, condition, group)
+One <- rename(One, c("HR1S"="HR", "Resp1S"="Resp"))
+#Unique subject
+One$subject <- ifelse(One$group=="G10", "10",
+              ifelse(One$group == "G9", "9",
+                     ifelse(One$group == "G8", "8",
+                            ifelse(One$group == "G7", "7",
+                                   ifelse(One$group == "G6", "6", 
+                                          ifelse(One$group == "G5", "5",
+                                                 ifelse(One$group == "G4", "4",
+                                                        ifelse(One$group == "G3", "3",
+                                                               ifelse(One$group == "G2", "2",
+                                                                      ifelse(One$group == "G1", "1",
+                                                                             NA))))))))))
+#Malthe suggests case_when instead of Ifelse
+
+Two <- select(data, HR2S, Resp2S, condition, group)
+Two <- rename(Two, c("HR2S"="HR", "Resp2S"="Resp"))
+#unique subject time 1
+Two$subject <- ifelse(Two$group=="G10", "11",
+              ifelse(Two$group == "G9", "12",
+                     ifelse(Two$group == "G8", "13",
+                            ifelse(Two$group == "G7", "14",
+                                   ifelse(Two$group == "G6", "15", 
+                                          ifelse(Two$group == "G5", "16",
+                                                 ifelse(Two$group == "G4", "17",
+                                                        ifelse(Two$group == "G3", "18",
+                                                               ifelse(Two$group == "G2", "19",
+                                                                      ifelse(Two$group == "G1", "20",
+                                                                             NA))))))))))
+AWESOME = rbind(One, Two)
+
+#all combinations
+AWESOME$subject <- as.numeric(AWESOME$subject)
+combinations = expand.grid(p1 = unique(AWESOME$subject),p2 = unique(AWESOME$subject)) %>%
+                             dplyr::filter(p1 < p2) # < makes sure that the same file doesn't go twice
+
+surrogate_rqa = function(p1, p2, c) {
+  d1 = filter(AWESOME, subject == p1, condition ==c)
+  d2 = filter(AWESOME, subject == p2, condition ==c)
+    #------ CRQA ------
+  #Heart rate
+  a_h = try(crqa(d1$HR, d2$HR,delay = 4 , embed= 20, radius= 2.328673,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+  
+  #If analysis fails, record NA
+  if (length(a_h) > 2) {
+    RR_h = a_h[1][[1]]
+    DET_h = a_h[2][[1]] 
+    NRLINE_h = a_h[3][[1]]
+    maxL_h = a_h[4][[1]]
+    L_h = a_h[5][[1]]
+    ENTR_h = a_h[6][[1]]
+    rENTR_h = a_h[7][[1]]
+    LAM_h = a_h[8][[1]]
+    TT_h = a_h[9][[1]]
+  } else {
+    RR_h = NA
+    DET_h = NA
+    NRLINE_h = NA
+    maxL_h = NA
+    L_h = NA
+    ENTR_h = NA
+    rENTR_h = NA
+    LAM_h = NA
+    TT_h = NA
+  }
+  #Respiration rate
+  a_r = try(crqa(d1$Resp, d2$Resp,delay = 31, embed= 2, radius= 0.3845085,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_r) > 2) {
+    RR_r = a_r[1][[1]]
+    DET_r = a_r[2][[1]]
+    NRLINE_r = a_r[3][[1]]
+    maxL_r = a_r[4][[1]]
+    L_r = a_r[5][[1]]
+    ENTR_r = a_r[6][[1]]
+    rENTR_r = a_r[7][[1]]
+    LAM_r = a_r[8][[1]]
+    TT_r = a_r[9][[1]]
+  } else {
+    RR_r = NA
+    DET_r = NA
+    NRLINE_r = NA
+    maxL_r = NA
+    L_r = NA
+    ENTR_r = NA
+    rENTR_r = NA
+    LAM_r = NA
+    TT_r = NA
+  }
+df = data.frame(RR_h, DET_h, NRLINE_h, maxL_h, L_h, ENTR_h, rENTR_h, LAM_h, TT_h, RR_r, DET_r, NRLINE_r, maxL_r, L_r, ENTR_r, rENTR_r, LAM_r, TT_r)
+return(df)
+}
+
+surrogate_rqa_sync = function(p1, p2) {
+  surrogate_rqa(p1, p2, "Synchronous") %>%
+    mutate(condition = "Synchronous")
+}
+surrogate_rqa_con = function(p1, p2) {
+  surrogate_rqa(p1, p2, "Conversation")%>%
+    mutate(condition = "Conversation")
+}
+surrogate_rqa_turn = function(p1, p2) {
+  surrogate_rqa(p1, p2, "TurnTaking")%>%
+    mutate(condition = "TurnTaking")
+}
+
+x <- combinations$p1
+y <- combinations$p2
+
+Sync <- map2_df(x, y, surrogate_rqa_sync)
+Conv <- map2_df(x, y, surrogate_rqa_con)
+Turn <- map2_df(x, y, surrogate_rqa_turn)
+lol <- rbind(Sync, Conv, Turn)
+
+write.csv(lol, "surrogates.csv", row.names = FALSE)
+```
+### Testing effects of conditions
+ - make a (probably underpowered) mixed model testing effects of the different conditions on heart rate and respiration coordination
+ - N.B: would it make sense to include surrogate pairs? and if so how? what would that tell you?
+
+### Effects of respiration coordination on heart rate coordination
+ - describe how you would test those.
+ - Optional: run the models and report them
+```{r}
+
+ 
+# predict based on condition
+#Random data baseline
+# Interactioneffect condition and baseline
+ 
+ 
+ 
+ 
+ 
+ 
+```
+
+ ###### TRIAL
+ 
+
+######OLD Shuffel
+
+superfunction = function(x){
+  x = read.csv(x)
+  #Shuffle variables
+  HR1S_x = sample(x$HR1S)
+  x$HR1S = as.numeric(HR1S_x)
+  
+  HR2S_x = sample(x$HR2S)
+  x$HR2S = as.numeric(HR2S_x)
+  
+  Resp1S_x = sample(x$Resp1S)
+  x$Resp1S = as.numeric(Resp1S_x)
+  
+  Resp2S_x = sample(x$Resp2S)
+  x$Resp2S = as.numeric(Resp2S_x)
+  return(x)
+}
+
+#Make list of dataframes addapted by superfunction
+dflist <- lapply(pp_file_list, superfunction)
+#dflist <- bind_rows(dflist)
+fulldatafram <- bind_rows(dflist)
+dflist[1]
+
+#writing df_files into a new folder
+#Create folder
+dir.create("shuffeled", showWarnings = FALSE) #stops warnings if folder already exists
+warnings()
+#Make files
+
+superfunction2 = function(x){
+  for(y in pp_file_list){
+    name = str_extract(y, '.*(?=\\.csv)') #removing .csv from filename
+    name = paste(name,"Shuffled.csv", sep = '_')
+    }
+  #creating new folder to store the files in
+  write.csv(x,file.path("shuffeled",name)
+            }
+mapply(fulldatafram, superfunction2)
+#List of shuffled files
+Shuffle_files =list.files('shuffeled', pattern = "*.csv", full.names = TRUE)
+
+
+#####FRED#####
+################################### Randomized columns for T1 #################################
+
+#Randomize heart rate
+Random_heart <- sample(processed$HR1)
+
+#Making the randomized heart rate into a dataframe
+HR1_column_random <- data.frame(Random_heart)
+
+#Taking just the time from t1
+random_heart_time <- select(t1,time)
+
+#Putting the random heart rate 1 together with time
+HR1_column_random$time<-random_heart_time$time
+
+#Make dataframe into vector 
+vec1 <- as.vector(t(HR1_column_random))
+
+#making new vector into timeseries 
+R_Heart_rate_1 <- ts(vec1)
+
+####################
+
+#Randomize heart rate2
+Random_heart2 <- sample(t1$HR2)
+
+#Making the randomized heart rate into a dataframe
+HR2_column_random <- data.frame(Random_heart2)
+
+#Taking just the time from t1
+random_heart_time2 <- select(t1,time)
+
+#Putting the random heart rate 1 together with time
+HR2_column_random$time<-random_heart_time2$time
+
+#Make dataframe into vector 
+vec2 <- as.vector(t(HR2_column_random))
+
+#making new vector into timeseries 
+R_Heart_rate_2 <- ts(vec2)
+
+#############
+
+#Randomize respiration 1
+Random_respiration_1 <- sample(t1$Resp1)
+
+#Making the randomized respiration into a dataframe
+resp1_column_random <- data.frame(Random_respiration_1)
+
+#Taking just the time from t1
+random_resp_time <- select(t1,time)
+
+#Putting the random respiration 1 together with time
+resp1_column_random$time<-random_resp_time$time
+
+#Make dataframe into vector 
+Resp1_vec <- as.vector(t(resp1_column_random))
+
+#making new vector into timeseries 
+R_Respiration_1 <- ts(vec2)
+
+#############
+
+#Randomize respiration 2
+Random_respiration_2 <- sample(t1$Resp2)
+
+#Making the randomized respiration into a dataframe
+resp2_column_random <- data.frame(Random_respiration_2)
+
+#Taking just the time from t1
+random_resp_time2 <- select(t1,time)
+
+#Putting the random respiration 1 together with time
+resp2_column_random$time<-random_resp_time2$time
+
+#Make dataframe into vector 
+Resp2_vec <- as.vector(t(resp2_column_random))
+
+#making new vector into timeseries 
+R_Respiration_2 <- ts(Resp2_vec)
+
+## So our 4 random timeseries for the t1 are the following
+R_Heart_rate_1
+R_Heart_rate_2
+R_Respiration_1
+R_Respiration_2
+
+resp1 = list(G1_sync_down$Resp1s, G1_tt_down$resp1s,)
+resp_params = Purr::map2_df(resp1,resp2,CRQA_find)
+ 
+ 
+ 
+#PLAYAROUND for CRQA
+######
+setwd("/Users/FlowersnIce-cream/Google Drev/Hogwarts/R Studio/Alouishes/data/Assignment4_HeartRate_data_CleanData")
+HeartyData <- function(filename) {
+#read data
+  participant <- read.table(str_c("CleanData_condition-update/",filename), header = TRUE)
+#parse filename; study, Group, Trial, Condition
+  name = str_match(filename,"Study(\\d+)_G(\\d+)_T(\\d+)_C(\\d+)") 
+  #Called Regular Expressions #Capture group: Parentheses form group #backslashes to d+ = 1 or more -> Looks for any number 
+  clinical = as.data.frame(t(name[2:length(name)]))
+  names(clinical) = c("Study","Group","Trial","Condtion")
+  #Extract coloumns
+  time <- participant$time
+  Resp1 <- participant$Resp1
+  Resp2 <- participant$Resp12
+  HR1 <- participant$HR1
+  HR2 <- participant$HR2
+  data <- data.frame(time,Resp1,Resp2,HR1,HR2)
+#combine all this data
+return(cbind(clinical,data))
+}
+daaaaata = list.files("CleanData_condition-update/") %>% map_df(HeartyData)
+write_csv(daaaaata, "HeartyData.csv")
+######
+
+#####################
+ls.str(data)
+### 27 levels
+folds <- createFolds(unique(data$filename),k=27)
+#Set a counter
+n = 1
+metrics = NULL
+names = NULL
+
+for(f in folds){
+try = subset(data, (filename %in% f))
+HR1S <- ts(try$HR1S)
+HR2S<- ts(try$HR2S)
+ans <- crqa(HR1S, HR2S, delay=22, radius= 1.652331, embed = 11, normalize = 0, rescale = 0, mindiagline = 2, minvertline = 2) 
+metrics[n] <- c(percentRecurrence = ans[1], percentDeterminism = ans[2], longestLine = ans[5])
+names[n] <- try$filename
+n = n+1
+
+}
+#####
+
+#####
+
+AWESOME = rbind(One, Two)
+p_load(fun)
+#all combinations
+AWESOME$subject <- as.numeric(AWESOME$subject)
+Awesome_sync <- filter(AWESOME,condition =="Synchronous")
+Awesome_con <- filter(AWESOME, condition=="Conversation")
+Awesome_turn <- filter(AWESOME, condition=="TurnTaking")
+combinations_sync = expand.grid(p1 = unique(Awesome_sync$subject),p2 = unique(Awesome_sync$subject)) %>%
+                             dplyr::filter(p1 < p2) # < makes sure that the same file doesn't go twice
+combinations_sync$condition <- "Synchronous"
+
+combinations_con = expand.grid(p1 = unique(Awesome_con$subject),p2 = unique(Awesome_con$subject)) %>%
+                             dplyr::filter(p1 < p2) # < makes sure that the same file doesn't go twice
+combinations_con$condition <- "Conversation"
+
+combinations_turn = expand.grid(p1 = unique(Awesome_con$subject),p2 = unique(Awesome_con$subject)) %>%
+                             dplyr::filter(p1 < p2) # < makes sure that the same file doesn't go twice
+combinations_turn$condition <- "TurnTaking"
+
+combinations = rbind(combinations_sync,combinations_con,combinations_turn)
+
+surrogate_rqa = function(p1, p2, c) {
+  d1 = filter(AWESOME, subject == p1, condition ==c)
+  d2 = filter(AWESOME, subject == p2, condition ==c)
+    #------ CRQA ------
+  #Heart rate
+  a_h = try(crqa(d1$HR, d2$HR,delay = 4 , embed= 20, radius= 2.328673,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+  
+  #If analysis fails, record NA
+  if (length(a_h) > 2) {
+    RR_h = a_h[1][[1]]
+    DET_h = a_h[2][[1]] 
+    NRLINE_h = a_h[3][[1]]
+    maxL_h = a_h[4][[1]]
+    L_h = a_h[5][[1]]
+    ENTR_h = a_h[6][[1]]
+    rENTR_h = a_h[7][[1]]
+    LAM_h = a_h[8][[1]]
+    TT_h = a_h[9][[1]]
+  } else {
+    RR_h = NA
+    DET_h = NA
+    NRLINE_h = NA
+    maxL_h = NA
+    L_h = NA
+    ENTR_h = NA
+    rENTR_h = NA
+    LAM_h = NA
+    TT_h = NA
+  }
+  #Respiration rate
+  a_r = try(crqa(d1$Resp, d2$Resp,delay = 31, embed= 2, radius= 0.3845085,normalize=0,rescale=0,mindiagline = 2,minvertline = 2))
+
+  #If analysis fails, record NA
+  if (length(a_r) > 2) {
+    RR_r = a_r[1][[1]]
+    DET_r = a_r[2][[1]]
+    NRLINE_r = a_r[3][[1]]
+    maxL_r = a_r[4][[1]]
+    L_r = a_r[5][[1]]
+    ENTR_r = a_r[6][[1]]
+    rENTR_r = a_r[7][[1]]
+    LAM_r = a_r[8][[1]]
+    TT_r = a_r[9][[1]]
+  } else {
+    RR_r = NA
+    DET_r = NA
+    NRLINE_r = NA
+    maxL_r = NA
+    L_r = NA
+    ENTR_r = NA
+    rENTR_r = NA
+    LAM_r = NA
+    TT_r = NA
+  }
+  condition <- c
+df = data.frame(RR_h, DET_h, NRLINE_h, maxL_h, L_h, ENTR_h, rENTR_h, LAM_h, TT_h, RR_r, DET_r, NRLINE_r, maxL_r, L_r, ENTR_r, rENTR_r, LAM_r, TT_r, condition)
+return(df)
+}
+surrogate_rqa(1, 10, "Synchronous")
+
+sync_comb <- filter(combinations == "Synchronous")
+surrogate_rqa_sync = function(p1, p2) {
+  surrogate_rqa(p1, p2, "Synchronous")
+  
+}
+con_comb <- filter(combinations == "Conversation")
+surrogate_rqa_con = function(p1, p2) {
+  surrogate_rqa(p1, p2, "Conversation")
+}
+turn_comb <- filter(combinations == "TurnTaking")
+surrogate_rqa_turn = function(p1, p2) {
+  surrogate_rqa(p1, p2, "TurnTaking")
+}
+
+sync_x <- sync_comb$p1
+sync_y <- sync_comb$p2
+con_x <- con_comb$p1
+con_y <- con_comb$p2
+turn_x <- turn_comb$p1
+turn_y <- turn_comb$p2
+
+Sync <- map2_df(sync_x, sync_y, surrogate_rqa_sync)
+Conv <- map2_df(con_x, con_y, surrogate_rqa_con)
+Turn <- map2_df(turn_x, turn_y, surrogate_rqa_turn)
+rbind(Sync, Conv, Turn)
+
+##########

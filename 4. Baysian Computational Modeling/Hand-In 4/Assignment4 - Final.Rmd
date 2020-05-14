@@ -1,0 +1,582 @@
+---
+title: "models"
+author: "Sebastian Scott Engen"
+date: "30 apr 2019"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pacman)
+p_load(tidyverse, readxl, brms, metafor, brmstools, cowplot, ggthemes, tidybayes)
+
+pitch <- read_excel("Assignment4PitchDatav2.xlsx")
+meta <- read_excel("Assignment4MetaData.xlsx")
+```
+
+directories.
+Here we load functions used in the plot. 
+The functions can be found in the directory linked to (A4_functions).
+
+```{r}
+baseDir <- "."
+source(paste0(baseDir, "/A4_functions.R")) #flat violin
+
+```
+
+# TASK 1
+Plot to get an overview (not part of task)
+
+```{r meta situation}
+meta %>%
+  filter(!is.na(MeanES)) %>% #no NA. 
+  ggplot(aes(x = MeanES, y = StudyRef)) + 
+  geom_segment(aes(x = MeanES-SdES, xend = MeanES+SdES, y=StudyRef, yend=StudyRef)) +
+  geom_point() +
+  geom_vline(xintercept = 0, color = "grey42") 
+```
+
+TASK 1 (continued)
+preparing meta analysis.
+refer for formula's on transformation:
+https://onlinelibrary-wiley-com.ez.statsbiblioteket.dk:12048/doi/epdf/10.1002/sim.1525
+
+```{r}
+
+#subset with clean data (I.e., only rows with the columns we need)
+meta_clean <- meta %>%
+  subset(MeanES != "NA")
+
+#calculating variation (necessary to obtain log of standard deviation).
+meta_clean <- meta_clean %>%
+  mutate(varSDSZ = log(1+(PITCH_F0SD_SZ_SD^2/PITCH_F0SD_SZ_M^2)),
+         varSDHC = log(1+(PITCH_F0SD_HC_SD^2/PITCH_F0SD_HC_M^2)))
+
+#calculation for log of standard deviation.
+meta_clean <- meta_clean %>%
+  mutate(logSDSZ = sqrt(varSDSZ),
+         logSDHC = sqrt(varSDHC))
+
+#calculations for log of mean. 
+meta_clean <- meta_clean %>%
+  mutate(logmeanSZ = log(PITCH_F0SD_SZ_M) - 0.5 * varSDSZ,
+         logmeanHC = log(PITCH_F0SD_HC_M) - 0.5 * varSDHC)
+
+#caluclate effect of processed pitch SD (from the metafor package)
+meta_ready=escalc('SMD', n1i=SAMPLE_SIZE_SZ, n2i=SAMPLE_SIZE_CT, m1i=logmeanSZ,
+m2i=logmeanHC, sd1i=logSDSZ, sd2i=logSDHC,
+data = meta_clean)
+
+```
+
+TASK 1 (continued)
+meta analysis model.
+refer for the approach taken: 
+https://vuorre.netlify.com/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/ 
+
+Chunks where models are fitted also contain a line, which loads the saved model object from earlier. That way, they don't have to be fitted over and over again.
+
+```{r}
+# OBJECT
+#can be run instead of the model (while we work). 
+brm_matti <- readRDS("brm_matti.rds", refhook = NULL)
+
+# CALL
+# meta-analysis vuorre inspired. 
+brm_matti <- brm(
+  yi | se(vi) ~ 1 + (1 | StudyRef), 
+  prior = set_prior("uniform(0, 10)", class = "sd"), 
+  data = meta_ready, 
+  iter = 10000,
+  cores = 4,
+  sample_prior = TRUE
+  #file = "brm_matti" --> to save the object
+) 
+
+# model estimates for the effect size 
+brm_matti #looks fine (I.e., Rhat = 1 & many effective samples)
+
+```
+
+TASK 1 (continued)
+plots & sanity check
+
+```{r}
+#pairs & plot (sanity/convergence check)
+pairs(brm_matti) #looks fine
+plot(brm_matti) #looks fine
+pp_check(brm_matti) #looks fine
+
+#forest plot 
+brmstools::forest(brm_matti,
+       show_data = TRUE,
+       av_name = "Effect size")
+
+```
+
+TASK 2 
+Preparing data
+
+comments: 
+We log-transform because we have normality in log-space (I.e., a multiplicative process becomes normal in log-space). However, we also have to z-scale for it to match the meta-analysis. The log-transformation has to be done first, because it is impossible to log-transform negative values (which will exist after the z-scaling). 
+
+comments: 
+write something about random effects. 
+
+```{r}
+#putting on log scale, z-scaling & diagnosis as factor 
+pitch3 <- pitch %>%
+  mutate(pitchSDLOG = log(PitchSD),
+         pitchSDLOGz = scale(pitchSDLOG),
+         zpitchSD = scale(PitchSD),
+         diagnosis = as.factor(diagnosis))
+```
+
+TASK 3 
+3.1 how is the outcome distributed?
+log-normally (exponential/cauchy perhaps).
+At least it is not normally distributed, which is why we had to go to great lengths to transform the old data (& why we log-transformed the new data). We need to write this up. 
+
+3.2 how are the parameters of likelihood distribution distributed?
+We need to write this up as well. 
+
+3.3 use a sceptical prior for the effect of diagnosis. 
+We need to justify our priors.
+Right now I have just used some that work.
+
+building regression model: 
+
+```{r setup, include=FALSE}
+
+#can be run instead of the model 
+brm_mod <- readRDS("brm_mod.rds", refhook = NULL)
+
+#the regression
+mod_f <- bf("pitchSDLOGz ~ diagnosis + (1|studynr) + (1 | ID) + (1|trial)")
+
+#running the model with regularizing priors 
+brm_mod <- brm(
+  mod_f, 
+  prior = c(
+    prior(normal(0, 0.2), class = "Intercept"),
+    prior(normal(0, 0.2), class = "sd"), #Rhat = 1.01, could be more regularizing.
+    prior(normal(0, 0.3), class = "b"),
+    prior(normal(0, 0.3), class = "sigma")),
+  data = pitch3, 
+  cores = 4, iter = 4000, warmup = 2000,
+  sample_prior = TRUE, #added for later use. 
+  file = "brm_mod" #saving for later use - these models take ages to run. 
+)
+
+# model estimates 
+brm_mod
+
+```
+
+TASK 3 (continued)
+3.4 plots & model evaluation
+
+```{r}
+#sanity check
+plot(brm_mod) #looks good. 
+pairs(brm_mod) #looks good. 
+
+#posterior predictive checks
+pp_check(brm_mod, nsamples = 100) #looks ok. 
+pp_check(brm_mod, nsamples = 100, #just for fun
+         type = "violin_grouped", 
+         group = "diagnosis")
+
+#getting an idea of marginal effects
+brms::marginal_effects(brm_mod) # cannot be reported. It's trying to count effect size on a log-scale.
+```
+
+TASK 3 (continued)
+more plots.
+Ideas as to why this is not working (I.e., looks weird):
+--> how are we sampling? (I.e., something about random effects, pooling?)
+--> could we reparameterize our model so that we actually predict both groups directly?
+
+can we plot with posterior_samples(brm_mod) or something else instead?
+The main issue seems to be tying the predictions to either group. 
+We need to know whether a sample/prediction is for one group or the other. 
+I still think that when we sample, it is not really treating this as two different groups but combining the parameters in a wrong way. 
+
+```{r}
+#reshape this 
+d.pred <- distinct(pitch3, diagnosis, studynr, ID, trial)
+
+mod_wer <- predict(brm_mod, d.pred, summary = FALSE) 
+
+mod_wer_2 <- as.data.frame(mod_wer) %>%
+  reshape2::melt() %>%
+  mutate(id = str_extract(variable, "\\d+")) %>%
+  select(-variable)
+
+pt_pred <- pitch3 %>%
+  rownames_to_column("id") %>%
+  select(id, ID, diagnosis, studynr, trial, pitchSDLOGz) %>%
+  full_join(mod_wer_2, by = "id")
+
+#making function for transforming to natural scale 
+#the function
+transfer <- function(dataframe, value) {
+  dataframe$on_log <- dataframe[[value]]*sd(pitch3$pitchSDLOG) +
+    mean(pitch3$pitchSDLOG)
+  dataframe$on_nat <- exp(dataframe$on_log) 
+  dataframe$on_z <- (dataframe$on_nat - mean(pitch3$PitchSD))/sd(pitch3$PitchSD)
+  return(dataframe)
+}
+
+# use the function
+great <- transfer(pt_pred, "value")
+
+# recode factor for better plot
+great <- great %>%
+  mutate(d = diagnosis,
+        d = fct_recode(d, control = "0"),
+        d = fct_recode(d, schizophrenia = "1"))
+
+pitch3 <- pitch3 %>%
+  mutate(d = diagnosis,
+        d = fct_recode(d, control = "0"),
+         d = fct_recode(d, schizophrenia = "1"))
+
+#subsetting
+great0 <- great %>%
+  filter(d == "control")
+
+great1 <- great %>%
+  filter(d == "schizophrenia")
+
+#preparing raincloud (can be customized)
+raincloud_theme = theme(
+text = element_text(size = 10),
+axis.title.x = element_text(size = 16),
+axis.title.y = element_text(size = 16),
+axis.text = element_text(size = 14),
+axis.text.x = element_text(vjust = 0.5),
+legend.title=element_text(size=16),
+legend.text=element_text(size=16),
+legend.position = "right",
+plot.title = element_text(lineheight=.8, face="bold", size = 16),
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+
+#raincloud plot
+g <- ggplot() +
+  geom_flat_violin(data = great0, 
+                    aes(x = d, y = on_z,
+                        color = factor(d),
+                        fill = factor(d)),
+                        position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_flat_violin(data = great1, 
+                    aes(x = d, y = on_z,
+                        color = factor(d),
+                        fill = factor(d)),
+                        position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(data = pitch3,
+              aes(x = d, y = zpitchSD,
+                  color = factor(d)), 
+                  position = position_jitter(width = .15), 
+                  size = .5, alpha = 0.8) +
+  geom_boxplot(data = pitch3,
+              aes(x = d, y = zpitchSD,
+                  color = factor(d)),
+              width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 3) +
+  guides(fill = FALSE) + 
+  guides(color = FALSE) +
+  scale_fill_tableau() +
+  scale_color_tableau() +
+  coord_flip() +
+  theme_bw() +
+  ylim(-2,5) +
+  labs(title = "standard deviaton of pitch for HC & SZ",
+       subtitle = "groupings from data, pred post = violin, raw = points", 
+       x = "diagnosis", 
+       y = "z scaled effect size") + #sets the legend title.
+  raincloud_theme
+
+#call the plot
+g
+
+```
+
+TASK 4 (updating priors)
+4.1 re-running the model with meta-analytic priors
+
+```{r}
+#instead of running we can load
+brm_meta <- readRDS("brm_meta.rds", refhook = NULL)
+
+#the regression
+mod_f <- bf("pitchSDLOGz ~ diagnosis + (1|studynr) + (1 | ID) + (1|trial)")
+
+#running the model 
+brm_meta <- brm(
+  mod_f, 
+  prior = c(
+    prior(normal(0, 0.2), class = "Intercept"),
+    prior(normal(0, 0.2), class = "sd"),
+    prior(normal(-0.57, 0.25), class = "b"), #prior from meta. 
+    prior(normal(0, 0.3), class = "sigma")),
+  data = pitch3, 
+  cores = 4, iter = 4000, warmup = 2000,
+  sample_prior = TRUE,
+  file = "brm_meta"
+)
+
+#estimates 
+brm_meta
+
+```
+
+TASK 4 (continued)
+4.2 Evaluate model quality
+
+```{r}
+
+#sanity check (just plot() since pairs() is too messy)
+plot(brm_meta) #looks fine
+
+#pp_check & marginal effects
+pp_check(brm_meta, nsamples = 100) #looks fine. 
+brms::marginal_effects(brm_mod) #big effect (again, presumably)
+
+```
+
+TASK 5 
+5.1 plot priors & posteriors of the diagnosis effect for each model.
+As will be clear from the plot (bottom of the chunk) the priors are quite different (especially the means of the priors). However, the priors are not strong enough to "contain" the data - and the posteriors end up virtually identical. 
+
+```{r}
+
+#sampling prior & posterior from brm_mod
+p_samp_mod <- prior_samples(brm_mod) 
+po_samp_mod <- posterior_samples(brm_mod)
+
+#sampling prior & posterior from brm_meta
+p_samp_met <- prior_samples(brm_meta)
+po_samp_met <- posterior_samples(brm_meta)
+
+#transforming with the "transfer" function
+pr_scep_trans <- transfer(p_samp_mod, "b")
+po_scep_trans <- transfer(po_samp_mod, "b_diagnosis1")
+pr_met_trans <- transfer(p_samp_met, "b")
+po_met_trans <- transfer(po_samp_met, "b_diagnosis1")
+
+#plot 1 (sceptic priors)
+p1 <- ggplot() +
+  geom_density(data = pr_scep_trans, aes(x = b), fill = "red", alpha = 0.3)+
+  geom_density(data = po_scep_trans, aes(x = b_diagnosis1), fill = "blue", alpha = 0.3)+
+  xlab("effect of diagnosis on z-scale space regularizing prior") + 
+  labs(title = "difference between prior and posterior", 
+       subtitle = "regularizing prior",
+       caption = "red = prior\n blue = posterior") 
+
+#plot 2 (meta)
+p2 <- ggplot() +
+  geom_density(data = pr_met_trans, aes(x = b), fill = "red", alpha = 0.3)+
+  geom_density(data = po_met_trans, aes(x = b_diagnosis1), fill = "blue", alpha = 0.3)+
+  xlab("effect of diagnosis on z-scale") + 
+  labs(title = "difference between prior and posterior",
+       subtitle = "meta-analytic prior", 
+       caption = "red = prior\n blue = posterior") 
+
+#plot grid 
+plot_grid(p1, p2) #good comparison. does seem like the meta-prior should be slightly better. 
+
+```
+
+TASK 5 (continued)
+5.2 compare posteriors between the models.
+The posteriors are virtually identical. 
+
+```{r}
+eff_sizes <- tibble(sceptical = mod_avg_pred_eff$effect,
+                    meta = meta_avg_pred_eff$effect)
+
+
+#plot comparing the posteriors 
+p3 <- ggplot() +
+  geom_density(data = eff_sizes, aes(x = sceptical), 
+               fill = "red", alpha = 0.3)+
+  geom_density(data = eff_sizes, aes(x = meta), 
+               fill = "blue", alpha = 0.3) +
+  xlab("effect of diagnosis on z-scale") + 
+  labs(title = "difference between effect sizes",
+       subtitle = "comparing regularizing & meta-analytic priors", 
+       caption = "red = regularizing prior\n blue = meta-analytic prior") +
+  geom_vline(data = eff_sizes, aes(xintercept = mean(sceptical)), color = "black", linetype = "dashed") +
+  geom_vline(data = eff_sizes, aes(xintercept = mean(meta)), color = "black", linetype = "dashed") 
+
+#call the plot
+p3 
+
+```
+
+TASK 5 (continued)
+5.3 compare relative distance from truth (WAIC).
+
+Notice that they are identical now (actually the sceptic is infinitesimally better). Very hard to set priors after so many conversions. 
+
+```{r}
+#extracting criterion 
+meta_waic <- add_criterion(brm_meta, "waic")
+scep_waic <- add_criterion(brm_mod, "waic")
+
+#comparing WAIC
+comp_score <- loo_compare(meta_waic, scep_waic, criterion = "waic")
+print(comp_score, simplify = F)
+
+```
+
+reporting 
+
+```{r}
+transfer <- function(dataframe, value) {
+  dataframe$on_log <- dataframe[[value]]*sd(pitch3$pitchSDLOG) +
+    mean(pitch3$pitchSDLOG)
+  dataframe$on_nat <- exp(dataframe$on_log) 
+  dataframe$on_z <- (dataframe$on_nat - mean(pitch3$PitchSD))/sd(pitch3$PitchSD)
+  return(dataframe)
+}
+
+###
+# avg pred BRM_MOD
+###
+d.pred <- distinct(pitch3, diagnosis)
+
+mod_avg = fitted(brm_mod, re_formula = NA, newdata = d.pred, summary = FALSE)
+
+mod_avg2 <- as.data.frame(mod_avg) %>%
+  gather() %>%
+  mutate(diagnosis = ifelse(key == "V1", 0, 1))
+
+mod_avg_pred <- transfer(mod_avg2, "value")
+
+mod_avg_pred0 <- mod_avg_pred %>%
+  filter(diagnosis == "0") %>%
+  select(z0 = on_z)
+
+mod_avg_pred1 <- mod_avg_pred %>%
+  filter(diagnosis == "1") %>%
+  select(z1 = on_z)
+
+mod_avg_pred_eff <- cbind.data.frame(mod_avg_pred0, mod_avg_pred1) %>%
+  mutate(effect = z1 - z0)
+
+rethinking::dens(mod_avg_pred_eff$effect)
+round(rethinking::HPDI(mod_avg_pred_eff$effect, prob = 0.99), 2)
+
+
+
+###
+# avg pred BRM_META
+###
+d.pred <- distinct(pitch3, diagnosis)
+
+meta_avg = fitted(brm_meta, re_formula = NA, newdata = d.pred, summary = FALSE)
+
+meta_avg2 <- as.data.frame(meta_avg) %>%
+  gather() %>%
+  mutate(diagnosis = ifelse(key == "V1", 0, 1))
+
+meta_avg_pred <- transfer(meta_avg2, "value")
+
+meta_avg_pred0 <- meta_avg_pred %>%
+  filter(diagnosis == "0") %>%
+  select(z0 = on_z)
+
+meta_avg_pred1 <- meta_avg_pred %>%
+  filter(diagnosis == "1") %>%
+  select(z1 = on_z)
+
+meta_avg_pred_eff <- cbind.data.frame(meta_avg_pred0, meta_avg_pred1) %>%
+  mutate(effect = z1 - z0)
+
+rethinking::dens(meta_avg_pred_eff$effect)
+round(rethinking::HPDI(meta_avg_pred_eff$effect, prob = 0.99), 2)
+
+
+#IMPORTANT!! plots of this is to be found in "randomplots.Rmd"
+#run that code & then this can be run. 
+#NB: there is a difference in the violins even though it looks very similar. 
+plot_grid(g, g1, g2) 
+```
+
+TASK 5 (continued)
+5.4 discuss how they compare & whether any is best.
+
+
+
+-----------
+TASK 6
+prepare write-up.
+
+-----------
+TASK 7 (optional)
+how sceptical should a prior be?
+compare different priors (using WAIC)
+
+```{r}
+
+#(very) weakly regularizing prior
+
+#regularizing prior
+
+#sceptical prior
+
+```
+
+
+-----------
+TASK 8 (optional)
+include other predictors 
+--> age, gender, education
+--> main effects or interactions?
+
+Note: we only have these predictors in the "meta", not in the "pitch". 
+
+-----------
+TASK 9 (optional)
+- explore the bromance code below including random effects (by default with weakly informative priors)
+- learn how to change the prior
+- explore effects of trial, age, gender, including the appropriate random slopes
+- compare the models you created using WAIC and posterior predictive check (pp_check())
+
+
+```{r}
+
+#I filled in our code to Malte's craziness. 
+brm_out1 <- brm(pitchSDLOGz ~ 1 + diagnosis + (1|ID_unique/studynr), # Outcome as a function of the predictors as in lme4. 
+               data=pitch3, # Define the data
+               family=gaussian(), # Define the family. 
+               prior = c(
+    prior(normal(0, 0.2), class = "Intercept"),
+    prior(normal(0.2, 0.3), class = "sd"), #hacking to make it run. 
+    prior(normal(-0.57, 0.24), class = "b"), #prior from meta. 
+    prior(normal(0, 0.3), class = "sigma")),
+               iter = 5000, warmup = 2000, cores = 4)
+
+summary(brm_out1)
+plot(brm_out1)
+
+```
+
+
+#8000 samples from each row transformation. 
+#make a function. 
+
+#getting to the log-scale 
+samples_from_posterior*sd(log(PitchSD))+mean(log(PitchSD))
+
+#getting to the natural scale 
+exp(whatever)
+
+#z-scale 
+(samples - mean(PitchSD))/sd(PitchSD)
